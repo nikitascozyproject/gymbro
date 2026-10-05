@@ -1,0 +1,102 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #151515;
+  background: #f5f4f0;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; background: #f5f4f0; }
+button, a { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+
+.app-shell { min-height: 100vh; }
+.topbar {
+  height: 76px; padding: 0 clamp(20px, 5vw, 72px); display: flex; align-items: center;
+  justify-content: space-between; border-bottom: 1px solid #deddd7; background: rgba(245,244,240,.92);
+  position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px);
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.04em; font-size: 20px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: #151515; color: white; font-size: 15px; }
+nav { display: flex; gap: 28px; color: #77766f; font-size: 14px; }
+nav a.active { color: #151515; font-weight: 700; }
+.profile-button { border: 1px solid #d7d5cf; background: white; width: 34px; height: 34px; border-radius: 50%; font-weight: 700; }
+
+main { max-width: 1060px; margin: 0 auto; padding: 70px 24px 90px; }
+.hero { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 55px; }
+.eyebrow, .section-label { color: #77766f; font-size: 11px; letter-spacing: .14em; font-weight: 800; }
+.eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 16px; }
+.hero h1 { font-size: clamp(48px, 8vw, 88px); line-height: .92; letter-spacing: -.065em; margin: 0 0 20px; max-width: 700px; }
+.hero p { color: #77766f; font-size: 17px; max-width: 540px; margin: 0; line-height: 1.6; }
+
+.progress-ring {
+  width: 104px; height: 104px; flex: 0 0 auto; border-radius: 50%; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; background: conic-gradient(#151515 var(--progress), #deddd7 var(--progress));
+  position: relative;
+}
+.progress-ring::after { content: ""; position: absolute; inset: 7px; background: #f5f4f0; border-radius: 50%; }
+.progress-ring strong, .progress-ring span { position: relative; z-index: 1; }
+.progress-ring strong { font-size: 24px; letter-spacing: -.04em; }
+.progress-ring span { font-size: 10px; color: #77766f; text-transform: uppercase; letter-spacing: .1em; }
+
+.workout-overview {
+  border-top: 1px solid #151515; border-bottom: 1px solid #d5d3cc; padding: 25px 0;
+  display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 18px;
+}
+.workout-overview h2 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -.045em; margin: 7px 0 5px; }
+.workout-overview p { color: #77766f; margin: 0; }
+.overview-stats { display: flex; flex-direction: column; gap: 9px; color: #66655f; font-size: 12px; white-space: nowrap; }
+.overview-stats span { display: flex; align-items: center; gap: 8px; }
+
+.exercise-card {
+  display: grid; grid-template-columns: 58px 1fr; padding: 27px 0; border-bottom: 1px solid #d5d3cc;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.exercise-card.is-complete { opacity: .52; }
+.exercise-number { font-size: 12px; color: #aaa89f; padding-top: 4px; }
+.exercise-heading { display: flex; justify-content: space-between; gap: 20px; }
+.exercise-heading h3 { font-size: 22px; letter-spacing: -.035em; margin: 0 0 5px; }
+.exercise-heading p { color: #88867f; font-size: 12px; text-transform: capitalize; margin: 0; }
+.icon-button { border: 1px solid #d4d2ca; background: white; border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; }
+.exercise-meta { display: flex; gap: 18px; margin: 17px 0; color: #66655f; font-size: 12px; }
+.exercise-meta span:not(:last-child)::after { content: "·"; margin-left: 18px; color: #bbb9b1; }
+.complete-button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 0; font-size: 12px; font-weight: 700; color: #151515; }
+.complete-button.done { color: #66655f; }
+
+.list-actions { display: flex; align-items: center; gap: 16px; padding: 25px 0 55px; }
+.secondary-button, .quiet-button { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #d3d1c9; background: white; border-radius: 999px; padding: 11px 16px; font-size: 12px; font-weight: 700; }
+.quiet-button { border: 0; background: transparent; color: #77766f; }
+
+.next-card { display: grid; grid-template-columns: 44px 1fr 20px; gap: 20px; align-items: start; border-top: 1px solid #151515; padding: 28px 0; }
+.next-icon { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #151515; color: white; }
+.next-card h3 { margin: 8px 0; font-size: 21px; letter-spacing: -.03em; }
+.next-card p { margin: 0; color: #77766f; line-height: 1.55; max-width: 680px; font-size: 13px; }
+.next-arrow { color: #aaa89f; margin-top: 12px; }
+
+.stats-strip { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #d5d3cc; margin-top: 30px; }
+.stats-strip div { display: grid; grid-template-columns: 24px 1fr; column-gap: 10px; padding: 22px 0; border-right: 1px solid #d5d3cc; }
+.stats-strip div:last-child { border-right: 0; padding-left: 22px; }
+.stats-strip div:not(:first-child) { padding-left: 22px; }
+.stats-strip svg { grid-row: span 2; color: #77766f; }
+.stats-strip strong { font-size: 20px; letter-spacing: -.03em; }
+.stats-strip span { font-size: 11px; color: #88867f; }
+
+footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex; justify-content: space-between; color: #aaa89f; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+
+@media (max-width: 700px) {
+  .topbar { height: 64px; }
+  nav { display: none; }
+  main { padding-top: 48px; }
+  .hero { align-items: start; }
+  .progress-ring { width: 84px; height: 84px; }
+  .progress-ring strong { font-size: 20px; }
+  .workout-overview { display: block; }
+  .overview-stats { margin-top: 20px; }
+  .exercise-card { grid-template-columns: 36px 1fr; }
+  .exercise-heading h3 { font-size: 19px; }
+  .stats-strip { grid-template-columns: 1fr; }
+  .stats-strip div, .stats-strip div:not(:first-child), .stats-strip div:last-child { border-right: 0; border-bottom: 1px solid #d5d3cc; padding: 18px 0; }
+}
