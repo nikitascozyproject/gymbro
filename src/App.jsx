@@ -171,7 +171,7 @@ export default function App() {
     equipment:state.profile.equipment,
     trainingDays:state.profile.trainingDays,
     history:state.history,
-    focusOverride:exercise.muscles,
+    focusOverride:[exercise.muscles[0]],
     exerciseCount:1,
     constraints,
     excludeIds:currentIds,
