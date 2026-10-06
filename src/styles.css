@@ -125,3 +125,26 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
   .choice-grid { grid-template-columns:1fr; }
   .primary-button.compact { margin-left:0; }
 }
+
+.overview-right { display:flex; flex-direction:column; align-items:flex-end; gap:15px; }
+.customize-button { display:inline-flex; align-items:center; gap:7px; border:1px solid #d3d1c9; background:white; border-radius:999px; padding:10px 14px; font-size:12px; font-weight:800; }
+.customize-button:hover { border-color:#151515; }
+.customizer-overlay { position:fixed; inset:0; z-index:60; background:rgba(15,15,15,.38); backdrop-filter:blur(8px); display:grid; place-items:start center; padding:80px 20px 20px; overflow:auto; }
+.customizer-card { width:min(650px,100%); background:#f7f6f2; border:1px solid #d6d4cc; border-radius:24px; padding:30px; box-shadow:0 30px 80px rgba(0,0,0,.18); }
+.customizer-head { display:flex; justify-content:space-between; align-items:start; gap:20px; }
+.customizer-card h2 { margin:7px 0 0; font-size:clamp(28px,5vw,42px); letter-spacing:-.05em; line-height:1; }
+.customizer-intro { color:#77766f; line-height:1.55; font-size:13px; max-width:540px; margin:15px 0 26px; }
+.customizer-card label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.12em; font-weight:800; color:#77766f; margin:22px 0 10px; }
+.muscle-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.muscle-choice { display:flex; align-items:center; justify-content:space-between; gap:8px; border:1px solid #d4d2ca; background:white; color:#55544e; border-radius:12px; padding:12px 13px; font-size:12px; font-weight:700; text-transform:capitalize; }
+.muscle-choice.selected { border-color:#151515; background:#151515; color:#fff; }
+.customizer-note { color:#929087; font-size:11px; line-height:1.5; margin:13px 0 0; }
+.customizer-card .primary-button { width:100%; margin-top:25px; padding:14px 18px; }
+.customizer-card .primary-button:disabled { opacity:.4; cursor:not-allowed; }
+@media (max-width:700px) {
+  .overview-right { align-items:stretch; margin-top:20px; }
+  .customize-button { justify-content:center; }
+  .customizer-overlay { padding:64px 12px 12px; }
+  .customizer-card { padding:23px 20px; border-radius:20px; }
+  .muscle-grid { grid-template-columns:repeat(2,1fr); }
+}
