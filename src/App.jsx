@@ -58,7 +58,7 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
     <p className="customizer-intro">Tell Gymbro what you want. We'll handle the programming.</p>
 
     <label>Muscle groups</label>
-    <div className="muscle-grid">{MUSCLES.map(muscle => <button key={muscle} className={`muscle-choice ${selected.includes(muscle) ? "selected" : ""} ${suggestedMuscles.includes(muscle) ? "suggested" : ""}`} onClick={()=>toggleMuscle(muscle)}><span>{MUSCLE_LABELS[muscle]}</span>{selected.includes(muscle) && <Check size={15}/>}</button>)}</div>
+    <div className="muscle-grid">{MUSCLES.map(muscle => <button key={muscle} className={`muscle-choice ${selected.includes(muscle) ? "selected" : ""} ${suggestedMuscles.includes(muscle) && !selected.includes(muscle) ? "suggested" : ""}`} onClick={()=>toggleMuscle(muscle)}><span>{MUSCLE_LABELS[muscle]}</span>{selected.includes(muscle) && <Check size={15}/>}</button>)}</div>
 
     <label>How much time do you have?</label>
     <div className="time-choice-grid">{["20","30","45","60+"].map(value => <button key={value} className={timeAvailable===value ? "selected" : ""} onClick={()=>setTimeAvailable(value)}><strong>{value}</strong><span>min</span></button>)}</div>
