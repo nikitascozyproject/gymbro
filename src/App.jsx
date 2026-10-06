@@ -35,7 +35,7 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
   const [showMore, setShowMore] = useState(false);
   const [energy, setEnergy] = useState(saved.energy || "normal");
   const [intensity, setIntensity] = useState(saved.intensity || "moderate");
-  const [equipmentMode, setEquipmentMode] = useState(saved.equipmentMode || "equipment");
+  const [equipmentModes, setEquipmentModes] = useState(saved.equipmentModes || ["equipment"]);
 
   const toggleMuscle = muscle => setSelected(current => current.includes(muscle) ? current.filter(item => item !== muscle) : [...current, muscle]);
   const countForTime = time => ({ "20": 2, "30": 4, "45": 5, "60+": 7 }[time] || count);
@@ -59,11 +59,11 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
         ["equipment","Gym equipment"],
         ["bodyweight","No equipment"],
         ["dumbbells","Dumbbells"]
-      ].map(([value,label])=><button key={value} className={equipmentMode===value?"selected":""} onClick={()=>setEquipmentMode(value)}>{label}</button>)}</div><p className="customizer-note">Gymbro will show options that actually work for the muscles you selected.</p></div>
+      ].map(([value,label])=><button key={value} className={equipmentModes.includes(value)?"selected":""} onClick={()=>setEquipmentModes(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value])}>{label}</button>)}</div><p className="customizer-note">Choose one or more. Gymbro will use the equipment options you selected for the muscles you're training.</p></div>
     </div>}
 
     <div className="customizer-summary"><span>{selected.length ? selected.map(x=>x[0].toUpperCase()+x.slice(1)).join(" + ") : "Choose a muscle group"}</span><span>{countForTime(timeAvailable)} exercises · {timeAvailable} min</span></div>
-    <button className="primary-button" disabled={!selected.length} onClick={()=>onApply(selected, countForTime(timeAvailable), {timeAvailable, energy, intensity, equipmentMode})}>Build today's workout <ChevronRight size={17}/></button>
+    <button className="primary-button" disabled={!selected.length} onClick={()=>onApply(selected, countForTime(timeAvailable), {timeAvailable, energy, intensity, equipmentModes})}>Build today's workout <ChevronRight size={17}/></button>
   </section></div>;
 }
 function Setup({ profile, onSave, onClose }) {
@@ -103,7 +103,7 @@ export default function App() {
   const applyCustomization=(muscles,count,constraints)=>{
   const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});
   setTodayPlan(custom);
-  setState(c=>({...c,todayPlan:custom,todayCustomization:{muscles,timeAvailable:constraints.timeAvailable,energy:constraints.energy,intensity:constraints.intensity,equipmentMode:constraints.equipmentMode}}));
+  setState(c=>({...c,todayPlan:custom,todayCustomization:{muscles,timeAvailable:constraints.timeAvailable,energy:constraints.energy,intensity:constraints.intensity,equipmentModes:constraints.equipmentModes}}));
   setCompleted([]);
   setShowAll(false);
   setShowCustomizer(false);
