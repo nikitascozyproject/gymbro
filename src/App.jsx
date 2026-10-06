@@ -7,6 +7,18 @@ const STORAGE_KEY = "gymbro-state-v1";
 const ONBOARDED_KEY = "gymbro-onboarded";
 const MUSCLES = ["glutes", "quads", "hamstrings", "back", "shoulders", "chest", "biceps", "triceps", "core"];
 const EXERCISE_COUNTS = [2, 3, 4, 5, 6, 7];
+const MUSCLE_PAIRINGS = {
+  shoulders: ["back", "triceps", "chest"],
+  chest: ["triceps", "shoulders"],
+  back: ["biceps", "shoulders"],
+  biceps: ["back", "shoulders"],
+  triceps: ["chest", "shoulders"],
+  glutes: ["hamstrings", "quads", "core"],
+  quads: ["glutes", "hamstrings", "core"],
+  hamstrings: ["glutes", "core"],
+  core: ["glutes", "quads", "back"],
+};
+const MUSCLE_LABELS = Object.fromEntries(MUSCLES.map(m => [m, m[0].toUpperCase() + m.slice(1)]));
 
 function loadState() {
   try {
@@ -39,13 +51,16 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
 
   const toggleMuscle = muscle => setSelected(current => current.includes(muscle) ? current.filter(item => item !== muscle) : [...current, muscle]);
   const countForTime = time => ({ "20": 2, "30": 4, "45": 5, "60+": 7 }[time] || count);
+  const suggestedMuscles = [...new Set(selected.flatMap(m => MUSCLE_PAIRINGS[m] || []))].filter(m => !selected.includes(m)).slice(0, 3);
+  const toggleSuggested = muscle => setSelected(current => current.includes(muscle) ? current.filter(item => item !== muscle) : [...current, muscle]);
 
   return <div className="customizer-overlay" onClick={onClose}><section className="customizer-card simple-customizer" onClick={e=>e.stopPropagation()}>
     <div className="customizer-head"><div><span className="section-label">TODAY'S SESSION</span><h2>What are we doing today?</h2></div><button className="icon-button" onClick={onClose} aria-label="Close"><X size={17}/></button></div>
     <p className="customizer-intro">Tell Gymbro what you want. We'll handle the programming.</p>
 
     <label>Muscle groups</label>
-    <div className="muscle-grid">{MUSCLES.map(muscle => <button key={muscle} className={`muscle-choice ${selected.includes(muscle) ? "selected" : ""}`} onClick={()=>toggleMuscle(muscle)}><span>{muscle}</span>{selected.includes(muscle) && <Check size={15}/>}</button>)}</div>
+    <div className="muscle-grid">{MUSCLES.map(muscle => <button key={muscle} className={`muscle-choice ${selected.includes(muscle) ? "selected" : ""}`} onClick={()=>toggleMuscle(muscle)}><span>{MUSCLE_LABELS[muscle]}</span>{selected.includes(muscle) && <Check size={15}/>}</button>)}</div>
+    {suggestedMuscles.length > 0 && <div className="muscle-suggestions"><span className="suggestion-label">GOOD PAIRINGS</span><p>These muscles pair naturally with what you've chosen.</p><div className="suggestion-chips">{suggestedMuscles.map(muscle => <button key={muscle} onClick={()=>toggleSuggested(muscle)}><span>+ {MUSCLE_LABELS[muscle]}</span></button>)}</div></div>}
 
     <label>How much time do you have?</label>
     <div className="time-choice-grid">{["20","30","45","60+"].map(value => <button key={value} className={timeAvailable===value ? "selected" : ""} onClick={()=>setTimeAvailable(value)}><strong>{value}</strong><span>min</span></button>)}</div>
