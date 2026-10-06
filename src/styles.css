@@ -234,3 +234,9 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
 
 .muscle-choice.suggested { border-color:#aaa79e; box-shadow:0 0 0 2px rgba(21,21,21,.07), 0 0 14px rgba(21,21,21,.10); }
 .muscle-choice.suggested:hover { border-color:#151515; box-shadow:0 0 0 2px rgba(21,21,21,.11), 0 0 18px rgba(21,21,21,.14); }
+
+/* Smart muscle pairing hint */
+.muscle-choice.suggested { border-color:#b7b4ab; box-shadow:0 0 0 2px rgba(21,21,21,.06),0 0 14px rgba(21,21,21,.10); animation:gymbro-suggested-glow 2.2s ease-in-out infinite; }
+@keyframes gymbro-suggested-glow { 0%,100% { box-shadow:0 0 0 2px rgba(21,21,21,.05),0 0 8px rgba(21,21,21,.07); } 50% { box-shadow:0 0 0 2px rgba(21,21,21,.09),0 0 16px rgba(21,21,21,.14); } }
+.muscle-choice.suggested:hover { border-color:#151515; box-shadow:0 0 0 2px rgba(21,21,21,.10),0 0 18px rgba(21,21,21,.16); }
+.muscle-choice.selected { animation:none; }
