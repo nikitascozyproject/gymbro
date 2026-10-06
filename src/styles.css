@@ -213,3 +213,21 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
   .customizer-summary { flex-direction:column; gap:5px; }
   .customizer-summary span:last-child { text-align:left; }
 }
+
+.simple-customizer .customizer-intro { margin-bottom:22px; }
+.time-choice-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.time-choice-grid button { border:1px solid #d4d2ca; background:#fff; border-radius:14px; padding:12px 8px; display:flex; align-items:baseline; justify-content:center; gap:4px; color:#55544e; }
+.time-choice-grid button strong { font-size:18px; letter-spacing:-.03em; }
+.time-choice-grid button span { font-size:10px; color:#929087; }
+.time-choice-grid button.selected { background:#151515; border-color:#151515; color:#fff; }
+.time-choice-grid button.selected span { color:#d6d4cc; }
+.more-options { margin-top:18px; display:flex; align-items:center; gap:5px; border:0; background:none; padding:5px 0; color:#66645e; font-size:11px; font-weight:800; }
+.more-options.open svg { transform:rotate(90deg); }
+.more-options-panel { border-top:1px solid #dfddd5; margin-top:10px; padding-top:4px; display:grid; gap:18px; }
+.more-options-panel label { margin:12px 0 8px; }
+.simple-customizer .customizer-summary { margin-top:20px; }
+@media (max-width:700px) {
+  .time-choice-grid { gap:6px; }
+  .time-choice-grid button { padding:11px 4px; }
+  .time-choice-grid button strong { font-size:16px; }
+}
