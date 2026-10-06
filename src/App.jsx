@@ -83,17 +83,17 @@ function ProfilePanel({ profile, onClose, onSave }) {
 
 export default function App() {
   const [state,setState]=useState(loadState), [completed,setCompleted]=useState([]), [showAll,setShowAll]=useState(false), [showProfile,setShowProfile]=useState(false), [showCustomizer,setShowCustomizer]=useState(false);
-  const [todayPlan,setTodayPlan]=useState(null);
+  const [todayPlan,setTodayPlan]=useState(()=>loadState().todayPlan || null);
   const [showSetup,setShowSetup]=useState(()=>!localStorage.getItem(ONBOARDED_KEY));
-  useEffect(()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(state)),[state]);
+  useEffect(()=>localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,todayPlan})),[state,todayPlan]);
   const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
   const workout=todayPlan || defaultWorkout;
   const progress=Math.round((completed.length/workout.exercises.length)*100);
   const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
   const visible=showAll?workout.exercises:workout.exercises.slice(0,3);
   const toggle=id=>setCompleted(c=>c.includes(id)?c.filter(x=>x!==id):[...c,id]);
-  const applyCustomization=(muscles,count,constraints)=>{const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});setTodayPlan(custom);setCompleted([]);setShowAll(false);setShowCustomizer(false);};
-  const finish=()=>{if(progress!==100)return;setState(c=>({...c,history:[...c.history,{date:new Date().toISOString(),type:workout.type,exerciseIds:workout.exercises.map(x=>x.id)}]}));setCompleted([]);setTodayPlan(null);};
+  const applyCustomization=(muscles,count,constraints)=>{const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});setTodayPlan(custom);setState(c=>({...c,todayPlan:custom}));setCompleted([]);setShowAll(false);setShowCustomizer(false);};
+  const finish=()=>{if(progress!==100)return;setState(c=>({...c,history:[...c.history,{date:new Date().toISOString(),type:workout.type,exerciseIds:workout.exercises.map(x=>x.id)}]}));setCompleted([]);setTodayPlan(null);setState(c=>({...c,todayPlan:null}));};
   const saveProfile=profile=>{setState(c=>({...c,profile}));setShowProfile(false);};
   return <div className="app-shell">
     <header className="topbar"><a className="brand" href="#today"><span className="brand-mark">G</span><span>gymbro</span></a><nav><a className="active" href="#today">Today</a><a href="#history">History</a><a href="#profile" onClick={e=>{e.preventDefault();setShowProfile(true)}}>Profile</a></nav><button className="profile-button" onClick={()=>setShowProfile(true)}>N</button></header>
