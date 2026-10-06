@@ -9,8 +9,12 @@ const MUSCLES = ["glutes", "quads", "hamstrings", "back", "shoulders", "chest", 
 const EXERCISE_COUNTS = [2, 3, 4, 5, 6, 7];
 
 function loadState() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { profile: defaultProfile, history: [] }; }
-  catch { return { profile: defaultProfile, history: [] }; }
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return saved || { profile: defaultProfile, history: [], todayPlan: null, todayCustomization: null };
+  } catch {
+    return { profile: defaultProfile, history: [], todayPlan: null, todayCustomization: null };
+  }
 }
 
 function ExerciseCard({ exercise, index, completed, onToggle }) {
@@ -24,13 +28,14 @@ function ExerciseCard({ exercise, index, completed, onToggle }) {
   </article>;
 }
 
-function WorkoutCustomizer({ focus, count, onApply, onClose }) {
-  const [selected, setSelected] = useState(focus.map(x => x.toLowerCase()));
-  const [timeAvailable, setTimeAvailable] = useState("45");
+function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose }) {
+  const saved = savedCustomization || {};
+  const [selected, setSelected] = useState(saved.muscles?.length ? saved.muscles : focus.map(x => x.toLowerCase()));
+  const [timeAvailable, setTimeAvailable] = useState(saved.timeAvailable || "45");
   const [showMore, setShowMore] = useState(false);
-  const [energy, setEnergy] = useState("normal");
-  const [intensity, setIntensity] = useState("moderate");
-  const [avoid, setAvoid] = useState([]);
+  const [energy, setEnergy] = useState(saved.energy || "normal");
+  const [intensity, setIntensity] = useState(saved.intensity || "moderate");
+  const [avoid, setAvoid] = useState(saved.avoid || []);
 
   const toggleMuscle = muscle => setSelected(current => current.includes(muscle) ? current.filter(item => item !== muscle) : [...current, muscle]);
   const toggleAvoid = item => setAvoid(current => current.includes(item) ? current.filter(x => x !== item) : [...current, item]);
@@ -92,7 +97,14 @@ export default function App() {
   const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
   const visible=showAll?workout.exercises:workout.exercises.slice(0,3);
   const toggle=id=>setCompleted(c=>c.includes(id)?c.filter(x=>x!==id):[...c,id]);
-  const applyCustomization=(muscles,count,constraints)=>{const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});setTodayPlan(custom);setState(c=>({...c,todayPlan:custom}));setCompleted([]);setShowAll(false);setShowCustomizer(false);};
+  const applyCustomization=(muscles,count,constraints)=>{
+  const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});
+  setTodayPlan(custom);
+  setState(c=>({...c,todayPlan:custom,todayCustomization:{muscles,timeAvailable:constraints.timeAvailable,energy:constraints.energy,intensity:constraints.intensity,avoid:constraints.avoid}}));
+  setCompleted([]);
+  setShowAll(false);
+  setShowCustomizer(false);
+};
   const finish=()=>{if(progress!==100)return;setState(c=>({...c,history:[...c.history,{date:new Date().toISOString(),type:workout.type,exerciseIds:workout.exercises.map(x=>x.id)}]}));setCompleted([]);setTodayPlan(null);setState(c=>({...c,todayPlan:null}));};
   const saveProfile=profile=>{setState(c=>({...c,profile}));setShowProfile(false);};
   return <div className="app-shell">
@@ -107,6 +119,6 @@ export default function App() {
     </main>
     <footer><span>gymbro · built for consistency</span><span>v0.3</span></footer>
     {showSetup&&<Setup profile={state.profile} onSave={profile=>{saveProfile(profile);localStorage.setItem(ONBOARDED_KEY,"1");setShowSetup(false)}} onClose={()=>{localStorage.setItem(ONBOARDED_KEY,"1");setShowSetup(false)}}/>}
-    {showProfile&&<ProfilePanel profile={state.profile} onClose={()=>setShowProfile(false)} onSave={saveProfile}/>}\n    {showCustomizer&&<WorkoutCustomizer focus={workout.focus} count={workout.exercises.length} onApply={applyCustomization} onClose={()=>setShowCustomizer(false)}/>}
+    {showProfile&&<ProfilePanel profile={state.profile} onClose={()=>setShowProfile(false)} onSave={saveProfile}/>}\n    {showCustomizer&&<WorkoutCustomizer focus={workout.focus} count={workout.exercises.length} savedCustomization={state.todayCustomization} onApply={applyCustomization} onClose={()=>setShowCustomizer(false)}/>}
   </div>;
 }
