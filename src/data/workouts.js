@@ -1,4 +1,4 @@
-export const exerciseLibrary = [
+const featuredExerciseLibrary = [
   { id:"hip-thrust",name:"Hip Thrust",muscles:["glutes"],pattern:"hinge",equipment:["barbell","bench"],sets:3,reps:"8–12",rest:"90 sec",demo:{youtubeId:"hnCEvArZvwU"} },
   { id:"rdl",name:"Romanian Deadlift",muscles:["hamstrings","glutes"],pattern:"hinge",equipment:["dumbbells","barbell"],sets:3,reps:"8–10",rest:"90 sec",demo:{youtubeId:"2bmuYtv4HbQ"} },
   { id:"split-squat",name:"Bulgarian Split Squat",muscles:["quads","glutes"],pattern:"squat",equipment:["dumbbells","bench"],sets:3,reps:"8–10 / side",rest:"90 sec",demo:{youtubeId:"W5H-0DMiclY"} },
@@ -19,6 +19,25 @@ export const exerciseLibrary = [
   { id:"bird-dog",name:"Bird Dog",muscles:["core"],pattern:"core",equipment:["bodyweight"],sets:3,reps:"8–10 / side",rest:"45 sec",demo:{youtubeId:"40a4wZrnCFs"} },
   { id:"plank",name:"Forearm Plank",muscles:["core"],pattern:"core",equipment:["bodyweight"],sets:3,reps:"30–45 sec",rest:"45 sec",demo:{youtubeId:"-1f7iZobFyM"} },
 ];
+import { exerciseDirectory } from "./exerciseDirectory";
+
+const defaultPrescription = {
+  sets: 3,
+  reps: "8–12",
+  rest: "60 sec",
+};
+
+export const exerciseLibrary = exerciseDirectory.map((exercise) => {
+  const featured = featuredExerciseLibrary.find((item) => item.name === exercise.name);
+  return {
+    ...exercise,
+    sets: featured?.sets ?? defaultPrescription.sets,
+    reps: featured?.reps ?? defaultPrescription.reps,
+    rest: featured?.rest ?? defaultPrescription.rest,
+    ...(featured?.demo ? { demo: featured.demo } : {}),
+  };
+});
+
 
 export const defaultProfile = {
   goal:"fat-loss",
