@@ -11,7 +11,7 @@ function matchesEquipment(exercise, equipment) {
   return exercise.equipment.some((item) => equipment.includes(item));
 }
 
-function scoreExercise(exercise, focus, recentIds) {
+function scoreExercise(exercise, focus, recentIds, energy = "normal", intensity = "moderate") {
   let score = 0;
   if (exercise.muscles.some((muscle) => focus.includes(muscle))) score += 5;
   if (exercise.muscles.includes("core")) score += 2;
@@ -33,7 +33,7 @@ export function generateWorkout({ library, equipment, trainingDays = 4, history 
 
   const candidates = library
     .filter((exercise) => matchesEquipment(exercise, equipment))
-    .map((exercise) => ({ exercise, score: scoreExercise(exercise, focus, recentIds) }))
+    .map((exercise) => ({ exercise, score: scoreExercise(exercise, focus, recentIds, energy, intensity) }))
     .sort((a, b) => b.score - a.score);
 
   const selected = [];
