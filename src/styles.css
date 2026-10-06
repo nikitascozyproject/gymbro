@@ -422,3 +422,20 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
     gap: 12px;
   }
 }
+
+
+/* Exercise controls */
+.exercise-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.shuffle-exercise-button {
+  transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.shuffle-exercise-button:hover {
+  background: #151515;
+  color: #fff;
+  border-color: #151515;
+  transform: rotate(12deg) scale(1.04);
+}
