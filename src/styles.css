@@ -148,3 +148,8 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
   .customizer-card { padding:23px 20px; border-radius:20px; }
   .muscle-grid { grid-template-columns:repeat(2,1fr); }
 }
+
+.constraint-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.constraint-grid > div { min-width:0; }
+.customizer-card .constraint-grid label { margin-top:0; }
+@media (max-width:700px) { .constraint-grid { grid-template-columns:1fr; gap:0; } }
