@@ -86,7 +86,7 @@ export default function App() {
   const [todayPlan,setTodayPlan]=useState(null);
   const [showSetup,setShowSetup]=useState(()=>!localStorage.getItem(ONBOARDED_KEY));
   useEffect(()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(state)),[state]);
-  const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history}),[state.profile,state.history]);
+  const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
   const workout=todayPlan || defaultWorkout;
   const progress=Math.round((completed.length/workout.exercises.length)*100);
   const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
