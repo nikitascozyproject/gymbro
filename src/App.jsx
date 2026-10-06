@@ -27,6 +27,9 @@ function ExerciseCard({ exercise, index, completed, onToggle }) {
 function WorkoutCustomizer({ focus, count, onApply, onClose }) {
   const [selected, setSelected] = useState(focus.map(x => x.toLowerCase()));
   const [exerciseCount, setExerciseCount] = useState(count);
+  const [timeAvailable, setTimeAvailable] = useState("45");
+  const [energy, setEnergy] = useState("normal");
+  const [intensity, setIntensity] = useState("moderate");
   const toggleMuscle = muscle => setSelected(current => current.includes(muscle) ? current.filter(item => item !== muscle) : [...current, muscle]);
 
   return <div className="customizer-overlay" onClick={onClose}><section className="customizer-card" onClick={e=>e.stopPropagation()}>
@@ -34,8 +37,15 @@ function WorkoutCustomizer({ focus, count, onApply, onClose }) {
     <p className="customizer-intro">Take control of today's workout. Pick one muscle, a few muscle groups, or let Gymbro build a combination for you.</p>
     <label>Muscle groups</label><div className="muscle-grid">{MUSCLES.map(muscle => <button key={muscle} className={`muscle-choice ${selected.includes(muscle) ? "selected" : ""}`} onClick={()=>toggleMuscle(muscle)}><span>{muscle}</span>{selected.includes(muscle) && <Check size={15}/>}</button>)}</div>
     <label>Exercises today</label><div className="segmented">{EXERCISE_COUNTS.map(value => <button key={value} className={exerciseCount===value ? "selected" : ""} onClick={()=>setExerciseCount(value)}>{value}</button>)}</div>
+    <div className="constraint-grid">
+      <div><label>Time available</label><div className="segmented">{["20","30","45","60+"].map(value => <button key={value} className={timeAvailable===value ? "selected" : ""} onClick={()=>setTimeAvailable(value)}>{value}{value==="60+" ? " min" : "m"}</button>)}</div></div>
+      <div><label>Energy today</label><div className="segmented">{[["low","Low"],["normal","Normal"],["high","High"]].map(([value,label]) => <button key={value} className={energy===value ? "selected" : ""} onClick={()=>setEnergy(value)}>{label}</button>)}</div></div>
+    </div>
+    <label>Intensity</label><div className="segmented">{[["easy","Easy"],["moderate","Moderate"],["hard","Hard"]].map(([value,label]) => <button key={value} className={intensity===value ? "selected" : ""} onClick={()=>setIntensity(value)}>{label}</button>)}</div>
+    <p className="customizer-note">These constraints change how Gymbro builds the session. If your time and exercise count conflict, Gymbro prioritizes the time you have.</p>
     <p className="customizer-note">Gymbro will use the best available exercises for your equipment and avoid recently trained movements where possible.</p>
-    <button className="primary-button" disabled={!selected.length} onClick={()=>onApply(selected, exerciseCount)}>Build today's workout <ChevronRight size={17}/></button>
+    <button className="primary-button" disabled={!selected.length} onClick={()=>onApply(selected, exerciseCount, { timeAvailable, energy, intensity })}>Build today's workout <ChevronRight size={17}/></button>
+
   </section></div>;
 }
 
@@ -72,7 +82,7 @@ export default function App() {
   const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
   const visible=showAll?workout.exercises:workout.exercises.slice(0,3);
   const toggle=id=>setCompleted(c=>c.includes(id)?c.filter(x=>x!==id):[...c,id]);
-  const applyCustomization=(muscles,count)=>{const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count});setTodayPlan(custom);setCompleted([]);setShowAll(false);setShowCustomizer(false);};
+  const applyCustomization=(muscles,count,constraints)=>{const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});setTodayPlan(custom);setCompleted([]);setShowAll(false);setShowCustomizer(false);};
   const finish=()=>{if(progress!==100)return;setState(c=>({...c,history:[...c.history,{date:new Date().toISOString(),type:workout.type,exerciseIds:workout.exercises.map(x=>x.id)}]}));setCompleted([]);setTodayPlan(null);};
   const saveProfile=profile=>{setState(c=>({...c,profile}));setShowProfile(false);};
   return <div className="app-shell">
