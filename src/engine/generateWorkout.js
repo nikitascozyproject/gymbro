@@ -27,16 +27,17 @@ export function generateWorkout({ library, equipment, trainingDays = 4, history 
   const dayIndex = history.length % Math.max(1, Math.min(trainingDays, split.length));
   const type = focusOverride?.length ? "custom" : split[dayIndex % split.length];
   const focus = focusOverride?.length ? focusOverride : focusByDay[type];
-  const { timeAvailable = "45", energy = "normal", intensity = "moderate", equipmentMode = "equipment" } = constraints;
+  const { timeAvailable = "45", energy = "normal", intensity = "moderate", equipmentModes = ["equipment"] } = constraints;
   const timeCaps = { "20": 3, "30": 4, "45": 6, "60+": 7 };
   const maxExercises = Math.min(exerciseCount, timeCaps[timeAvailable] || exerciseCount);
 
   const candidates = library
     .filter((exercise) => matchesEquipment(exercise, equipment))
     .filter((exercise) => {
-      if (equipmentMode === "bodyweight") return exercise.equipment.includes("bodyweight");
-      if (equipmentMode === "dumbbells") return exercise.equipment.includes("dumbbells");
-      return exercise.equipment.some((item) => item !== "bodyweight");
+      if (equipmentModes.includes("equipment") && exercise.equipment.some((item) => item !== "bodyweight")) return true;
+      if (equipmentModes.includes("dumbbells") && exercise.equipment.includes("dumbbells")) return true;
+      if (equipmentModes.includes("bodyweight") && exercise.equipment.includes("bodyweight")) return true;
+      return false;
     })
     .map((exercise) => ({ exercise, score: scoreExercise(exercise, focus, recentIds, energy, intensity) }))
     .sort((a, b) => b.score - a.score);
