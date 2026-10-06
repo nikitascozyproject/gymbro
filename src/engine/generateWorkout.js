@@ -104,7 +104,16 @@ export function generateWorkout({
     library, equipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle,
   });
 
-  let selected = selectExercises(candidates, focus, maxExercises);
+  let selected;
+  if (shuffle && maxExercises === 1 && candidates.length) {
+    // A single-exercise shuffle should explore the directory rather than
+    // repeatedly taking the same top-ranked alternative.
+    const poolSize = Math.min(8, candidates.length);
+    const pick = Math.floor(Math.random() * poolSize);
+    selected = [candidates[pick].exercise];
+  } else {
+    selected = selectExercises(candidates, focus, maxExercises);
+  }
 
   // If a very small muscle-specific pool cannot produce the requested number
   // of alternatives, keep the same focus and relax the "different exercise"
