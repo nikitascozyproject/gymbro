@@ -33,7 +33,7 @@ function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle 
   return <article className={`exercise-card ${completed ? "is-complete" : ""}`}>
     <div className="exercise-number">{String(index + 1).padStart(2,"0")}</div>
     <div className="exercise-main">
-      <div className="exercise-heading"><div><h3>{exercise.name}</h3><p>{exercise.muscles.join(" · ")}</p></div><div className="exercise-actions"><button className="icon-button shuffle-exercise-button" onClick={()=>onShuffle(exercise)} aria-label="Shuffle today’s workout" title="Shuffle today’s workout"><Shuffle size={16}/></button><button className="icon-button play-demo-button" onClick={()=>onPlay(exercise)} aria-label={`Watch ${exercise.name} demonstration`} title="Watch demonstration"><Play size={16} fill="currentColor"/></button></div></div>
+      <div className="exercise-heading"><div><h3>{exercise.name}</h3><p>{exercise.muscles.join(" · ")}</p></div><div className="exercise-actions"><button className="icon-button shuffle-exercise-button" onClick={()=>onShuffle(exercise)} aria-label={`Try another ${exercise.name} exercise`} title="Try another exercise"><Shuffle size={16}/></button><button className="icon-button play-demo-button" onClick={()=>onPlay(exercise)} aria-label={`Watch ${exercise.name} demonstration`} title="Watch demonstration"><Play size={16} fill="currentColor"/></button></div></div>
       <div className="exercise-meta"><span>{exercise.sets} sets</span><span>{exercise.reps}</span><span>{exercise.rest} rest</span></div>
       <button className={`complete-button ${completed ? "done" : ""}`} onClick={onToggle}>{completed && <Check size={17}/>} {completed ? "Completed" : "Mark complete"}</button>
     </div>
@@ -165,6 +165,7 @@ export default function App() {
     intensity:"moderate",
     equipmentModes:["equipment"],
   };
+  const currentIds = workout.exercises.map(item => item.id);
   const alternatives = generateWorkout({
     library:exerciseLibrary,
     equipment:state.profile.equipment,
@@ -173,15 +174,15 @@ export default function App() {
     focusOverride:exercise.muscles,
     exerciseCount:1,
     constraints,
-    excludeIds:[exercise.id],
+    excludeIds:currentIds,
     shuffle:true,
   });
   const replacement = alternatives.exercises[0];
-  if(!replacement || replacement.id === exercise.id) return;
+  if(!replacement || replacement.id === exercise.id || currentIds.includes(replacement.id)) return;
   const nextPlan = {
     ...workout,
     id:`${workout.id}-exercise-shuffle-${Date.now()}`,
-    exercises:workout.exercises.map(item => item.id === exercise.id ? replacement : item),
+    exercises:workout.exercises.map(item => item === exercise ? replacement : item),
   };
   setTodayPlan(nextPlan);
   setState(c=>({...c,todayPlan:nextPlan}));
