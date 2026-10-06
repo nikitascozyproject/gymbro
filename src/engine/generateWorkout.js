@@ -45,9 +45,36 @@ export function generateWorkout({ library, equipment, trainingDays = 4, history 
   const selected = [];
   const usedPatterns = new Set();
 
+  // When multiple muscles are selected, give each requested muscle a fair
+  // starting share before filling the remaining slots with the best overall
+  // movements. This avoids accidentally turning a 3-muscle session into a
+  // workout dominated by one muscle.
+  const requestedMuscles = focus;
+  const perMuscle = Math.floor(maxExercises / requestedMuscles.length);
+  const remainder = maxExercises % requestedMuscles.length;
+
+  requestedMuscles.forEach((muscle, muscleIndex) => {
+    const target = perMuscle + (muscleIndex < remainder ? 1 : 0);
+    const muscleCandidates = candidates.filter(({ exercise }) =>
+      exercise.muscles.includes(muscle) && !selected.some(item => item.id === exercise.id)
+    );
+
+    for (const { exercise } of muscleCandidates) {
+      if (selected.length >= maxExercises) break;
+      if (selected.filter(item => item.muscles.includes(muscle)).length >= target) break;
+      if (usedPatterns.has(exercise.pattern) && selected.length < Math.min(3, maxExercises)) continue;
+      selected.push(exercise);
+      usedPatterns.add(exercise.pattern);
+    }
+  });
+
+  // Fill any remaining slots with the strongest movements across all selected
+  // muscles, while still encouraging movement-pattern variety.
   for (const { exercise } of candidates) {
     if (selected.length >= maxExercises) break;
-    if (usedPatterns.has(exercise.pattern) && selected.length < Math.min(3, exerciseCount)) continue;
+    if (selected.some(item => item.id === exercise.id)) continue;
+    if (usedPatterns.has(exercise.pattern) && selected.length < Math.min(3, maxExercises)) continue;
+    if (!exercise.muscles.some(muscle => requestedMuscles.includes(muscle))) continue;
     selected.push(exercise);
     usedPatterns.add(exercise.pattern);
   }
