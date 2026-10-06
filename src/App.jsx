@@ -158,6 +158,36 @@ export default function App() {
   const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
   const visible=showAll?workout.exercises:workout.exercises.slice(0,3);
   const toggle=id=>setCompleted(c=>c.includes(id)?c.filter(x=>x!==id):[...c,id]);
+  const shuffleExercise=(exercise)=>{
+  const constraints = state.todayCustomization || {
+    timeAvailable: workout.exercises.length <= 3 ? "20" : workout.exercises.length <= 4 ? "30" : workout.exercises.length <= 6 ? "45" : "60+",
+    energy:"normal",
+    intensity:"moderate",
+    equipmentModes:["equipment"],
+  };
+  const alternatives = generateWorkout({
+    library:exerciseLibrary,
+    equipment:state.profile.equipment,
+    trainingDays:state.profile.trainingDays,
+    history:state.history,
+    focusOverride:exercise.muscles,
+    exerciseCount:1,
+    constraints,
+    excludeIds:[exercise.id],
+    shuffle:true,
+  });
+  const replacement = alternatives.exercises[0];
+  if(!replacement || replacement.id === exercise.id) return;
+  const nextPlan = {
+    ...workout,
+    id:`${workout.id}-exercise-shuffle-${Date.now()}`,
+    exercises:workout.exercises.map(item => item.id === exercise.id ? replacement : item),
+  };
+  setTodayPlan(nextPlan);
+  setState(c=>({...c,todayPlan:nextPlan}));
+  setCompleted(c=>c.filter(id=>id!==exercise.id));
+};
+
   const shuffleWorkout=()=>{
   const focus = state.todayCustomization?.muscles?.length
     ? state.todayCustomization.muscles
