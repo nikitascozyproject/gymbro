@@ -15,16 +15,21 @@ function scoreExercise(exercise, focus, recentIds) {
   let score = 0;
   if (exercise.muscles.some((muscle) => focus.includes(muscle))) score += 5;
   if (exercise.muscles.includes("core")) score += 2;
+  if (energy === "low" && ["hinge","squat","vertical-push","machine-press"].includes(exercise.pattern)) score -= 3;
+  if (energy === "high" && ["raise","raise-2","rear-delt","front-raise"].includes(exercise.pattern)) score += 1;
   if (!recentIds.includes(exercise.id)) score += 4;
   else score -= 6;
   return score;
 }
 
-export function generateWorkout({ library, equipment, trainingDays = 4, history = [], focusOverride = null, exerciseCount = 5 }) {
+export function generateWorkout({ library, equipment, trainingDays = 4, history = [], focusOverride = null, exerciseCount = 5, constraints = {} }) {
   const recentIds = history.slice(-8).flatMap((session) => session.exerciseIds || []);
   const dayIndex = history.length % Math.max(1, Math.min(trainingDays, split.length));
   const type = focusOverride?.length ? "custom" : split[dayIndex % split.length];
   const focus = focusOverride?.length ? focusOverride : focusByDay[type];
+  const { timeAvailable = "45", energy = "normal", intensity = "moderate" } = constraints;
+  const timeCaps = { "20": 3, "30": 4, "45": 6, "60+": 7 };
+  const maxExercises = Math.min(exerciseCount, timeCaps[timeAvailable] || exerciseCount);
 
   const candidates = library
     .filter((exercise) => matchesEquipment(exercise, equipment))
@@ -35,7 +40,7 @@ export function generateWorkout({ library, equipment, trainingDays = 4, history 
   const usedPatterns = new Set();
 
   for (const { exercise } of candidates) {
-    if (selected.length >= exerciseCount) break;
+    if (selected.length >= maxExercises) break;
     if (usedPatterns.has(exercise.pattern) && selected.length < Math.min(3, exerciseCount)) continue;
     selected.push(exercise);
     usedPatterns.add(exercise.pattern);
@@ -50,8 +55,8 @@ export function generateWorkout({ library, equipment, trainingDays = 4, history 
     id: `${type}-${history.length + 1}`,
     type,
     title: focusOverride?.length ? focusOverride.map(x => x[0].toUpperCase() + x.slice(1)).join(" + ") + " Workout" : dayNames[type],
-    subtitle: focusOverride?.length ? `A ${selected.length}-exercise session built around what you chose` : type === "lower" ? "Glutes, legs & a strong core" : "Back, shoulders & a strong core",
-    duration: selected.length <= 3 ? "20–30 min" : selected.length <= 5 ? "35–45 min" : "45–60 min",
+    subtitle: focusOverride?.length ? `A ${selected.length}-exercise session · ${energy} energy · ${intensity} intensity` : type === "lower" ? "Glutes, legs & a strong core" : "Back, shoulders & a strong core",
+    duration: timeAvailable === "60+" ? "45–60 min" : `${timeAvailable} min`,
     focus: focus.filter((muscle) => selected.some((exercise) => exercise.muscles.includes(muscle)))
       .map((x) => x[0].toUpperCase() + x.slice(1)),
     exercises: selected,
