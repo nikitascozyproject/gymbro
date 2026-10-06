@@ -35,10 +35,9 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
   const [showMore, setShowMore] = useState(false);
   const [energy, setEnergy] = useState(saved.energy || "normal");
   const [intensity, setIntensity] = useState(saved.intensity || "moderate");
-  const [avoid, setAvoid] = useState(saved.avoid || []);
+  const [equipmentMode, setEquipmentMode] = useState(saved.equipmentMode || "equipment");
 
   const toggleMuscle = muscle => setSelected(current => current.includes(muscle) ? current.filter(item => item !== muscle) : [...current, muscle]);
-  const toggleAvoid = item => setAvoid(current => current.includes(item) ? current.filter(x => x !== item) : [...current, item]);
   const countForTime = time => ({ "20": 2, "30": 4, "45": 5, "60+": 7 }[time] || count);
 
   return <div className="customizer-overlay" onClick={onClose}><section className="customizer-card simple-customizer" onClick={e=>e.stopPropagation()}>
@@ -56,11 +55,15 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
     {showMore && <div className="more-options-panel">
       <div><label>Energy</label><div className="segmented">{[["low","Low"],["normal","Normal"],["high","High"]].map(([value,label])=><button key={value} className={energy===value?"selected":""} onClick={()=>setEnergy(value)}>{label}</button>)}</div></div>
       <div><label>Intensity</label><div className="segmented">{[["easy","Easy"],["moderate","Moderate"],["hard","Hard"]].map(([value,label])=><button key={value} className={intensity===value?"selected":""} onClick={()=>setIntensity(value)}>{label}</button>)}</div></div>
-      <div><label>Avoid today</label><div className="avoid-grid">{[["heavy","Heavy lifting"],["floor","Floor exercises"],["unilateral","Unilateral work"],["jumping","Jumping"]].map(([value,label])=><button key={value} className={avoid.includes(value)?"selected":""} onClick={()=>toggleAvoid(value)}>{label}{avoid.includes(value)&&<Check size={14}/>}</button>)}</div></div>
+      <div><label>How do you want to train?</label><div className="segmented equipment-mode">{[
+        ["equipment","Gym equipment"],
+        ["bodyweight","No equipment"],
+        ["dumbbells","Dumbbells"]
+      ].map(([value,label])=><button key={value} className={equipmentMode===value?"selected":""} onClick={()=>setEquipmentMode(value)}>{label}</button>)}</div><p className="customizer-note">Gymbro will show options that actually work for the muscles you selected.</p></div>
     </div>}
 
     <div className="customizer-summary"><span>{selected.length ? selected.map(x=>x[0].toUpperCase()+x.slice(1)).join(" + ") : "Choose a muscle group"}</span><span>{countForTime(timeAvailable)} exercises · {timeAvailable} min</span></div>
-    <button className="primary-button" disabled={!selected.length} onClick={()=>onApply(selected, countForTime(timeAvailable), {timeAvailable, energy, intensity, avoid})}>Build today's workout <ChevronRight size={17}/></button>
+    <button className="primary-button" disabled={!selected.length} onClick={()=>onApply(selected, countForTime(timeAvailable), {timeAvailable, energy, intensity, equipmentMode})}>Build today's workout <ChevronRight size={17}/></button>
   </section></div>;
 }
 function Setup({ profile, onSave, onClose }) {
@@ -100,7 +103,7 @@ export default function App() {
   const applyCustomization=(muscles,count,constraints)=>{
   const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});
   setTodayPlan(custom);
-  setState(c=>({...c,todayPlan:custom,todayCustomization:{muscles,timeAvailable:constraints.timeAvailable,energy:constraints.energy,intensity:constraints.intensity,avoid:constraints.avoid}}));
+  setState(c=>({...c,todayPlan:custom,todayCustomization:{muscles,timeAvailable:constraints.timeAvailable,energy:constraints.energy,intensity:constraints.intensity,equipmentMode:constraints.equipmentMode}}));
   setCompleted([]);
   setShowAll(false);
   setShowCustomizer(false);
