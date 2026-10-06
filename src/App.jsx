@@ -26,38 +26,36 @@ function ExerciseCard({ exercise, index, completed, onToggle }) {
 
 function WorkoutCustomizer({ focus, count, onApply, onClose }) {
   const [selected, setSelected] = useState(focus.map(x => x.toLowerCase()));
-  const [exerciseCount, setExerciseCount] = useState(count);
   const [timeAvailable, setTimeAvailable] = useState("45");
+  const [showMore, setShowMore] = useState(false);
   const [energy, setEnergy] = useState("normal");
   const [intensity, setIntensity] = useState("moderate");
   const [avoid, setAvoid] = useState([]);
+
   const toggleMuscle = muscle => setSelected(current => current.includes(muscle) ? current.filter(item => item !== muscle) : [...current, muscle]);
   const toggleAvoid = item => setAvoid(current => current.includes(item) ? current.filter(x => x !== item) : [...current, item]);
+  const countForTime = time => ({ "20": 2, "30": 4, "45": 5, "60+": 7 }[time] || count);
 
-  return <div className="customizer-overlay" onClick={onClose}><section className="customizer-card" onClick={e=>e.stopPropagation()}>
-    <div className="customizer-head"><div><span className="section-label">TODAY'S SESSION</span><h2>Let's build today's workout.</h2></div><button className="icon-button" onClick={onClose} aria-label="Close"><X size={17}/></button></div>
-    <p className="customizer-intro">Tell Gymbro what you want today. You choose the constraints; Gymbro handles the programming.</p>
+  return <div className="customizer-overlay" onClick={onClose}><section className="customizer-card simple-customizer" onClick={e=>e.stopPropagation()}>
+    <div className="customizer-head"><div><span className="section-label">TODAY'S SESSION</span><h2>What are we doing today?</h2></div><button className="icon-button" onClick={onClose} aria-label="Close"><X size={17}/></button></div>
+    <p className="customizer-intro">Tell Gymbro what you want. We'll handle the programming.</p>
 
-    <div className="customizer-section"><span className="customizer-step">01</span><div><h3>What are we training?</h3><p>Pick one or more muscle groups.</p></div></div>
+    <label>Muscle groups</label>
     <div className="muscle-grid">{MUSCLES.map(muscle => <button key={muscle} className={`muscle-choice ${selected.includes(muscle) ? "selected" : ""}`} onClick={()=>toggleMuscle(muscle)}><span>{muscle}</span>{selected.includes(muscle) && <Check size={15}/>}</button>)}</div>
 
-    <div className="customizer-section"><span className="customizer-step">02</span><div><h3>How much?</h3><p>Set the size and time for today's session.</p></div></div>
-    <div className="constraint-pair">
-      <div><label>Exercises</label><div className="segmented compact-segmented">{EXERCISE_COUNTS.map(value => <button key={value} className={exerciseCount===value ? "selected" : ""} onClick={()=>setExerciseCount(value)}>{value}</button>)}</div></div>
-      <div><label>Time</label><div className="segmented compact-segmented">{["20","30","45","60+"].map(value => <button key={value} className={timeAvailable===value ? "selected" : ""} onClick={()=>setTimeAvailable(value)}>{value}{value==="60+" ? "m" : "m"}</button>)}</div></div>
-    </div>
+    <label>How much time do you have?</label>
+    <div className="time-choice-grid">{["20","30","45","60+"].map(value => <button key={value} className={timeAvailable===value ? "selected" : ""} onClick={()=>setTimeAvailable(value)}><strong>{value}</strong><span>min</span></button>)}</div>
 
-    <div className="customizer-section"><span className="customizer-step">03</span><div><h3>How are you feeling?</h3><p>Gymbro will adjust the session accordingly.</p></div></div>
-    <div className="constraint-pair">
-      <div><label>Energy</label><div className="segmented compact-segmented">{[["low","Low"],["normal","Normal"],["high","High"]].map(([value,label]) => <button key={value} className={energy===value ? "selected" : ""} onClick={()=>setEnergy(value)}>{label}</button>)}</div></div>
-      <div><label>Intensity</label><div className="segmented compact-segmented">{[["easy","Easy"],["moderate","Moderate"],["hard","Hard"]].map(([value,label]) => <button key={value} className={intensity===value ? "selected" : ""} onClick={()=>setIntensity(value)}>{label}</button>)}</div></div>
-    </div>
+    <button className={`more-options ${showMore ? "open" : ""}`} onClick={()=>setShowMore(!showMore)}>{showMore ? "Hide extra options" : "More options"} <ChevronRight size={15}/></button>
 
-    <div className="customizer-section"><span className="customizer-step">04</span><div><h3>Anything I should avoid?</h3><p>Optional. Tell Gymbro what doesn't work for you today.</p></div></div>
-    <div className="avoid-grid">{[["heavy","Heavy lifting"],["floor","Floor exercises"],["unilateral","Unilateral work"],["jumping","Jumping"]].map(([value,label]) => <button key={value} className={`avoid-choice ${avoid.includes(value) ? "selected" : ""}`} onClick={()=>toggleAvoid(value)}>{label}{avoid.includes(value) && <Check size={15}/>}</button>)}</div>
+    {showMore && <div className="more-options-panel">
+      <div><label>Energy</label><div className="segmented">{[["low","Low"],["normal","Normal"],["high","High"]].map(([value,label])=><button key={value} className={energy===value?"selected":""} onClick={()=>setEnergy(value)}>{label}</button>)}</div></div>
+      <div><label>Intensity</label><div className="segmented">{[["easy","Easy"],["moderate","Moderate"],["hard","Hard"]].map(([value,label])=><button key={value} className={intensity===value?"selected":""} onClick={()=>setIntensity(value)}>{label}</button>)}</div></div>
+      <div><label>Avoid today</label><div className="avoid-grid">{[["heavy","Heavy lifting"],["floor","Floor exercises"],["unilateral","Unilateral work"],["jumping","Jumping"]].map(([value,label])=><button key={value} className={avoid.includes(value)?"selected":""} onClick={()=>toggleAvoid(value)}>{label}{avoid.includes(value)&&<Check size={14}/>}</button>)}</div></div>
+    </div>}
 
-    <div className="customizer-summary"><span>{selected.length ? selected.map(x=>x[0].toUpperCase()+x.slice(1)).join(" + ") : "Choose a muscle group"}</span><span>{exerciseCount} exercises · {timeAvailable} min · {energy} energy · {intensity}</span></div>
-    <button className="primary-button" disabled={!selected.length} onClick={()=>onApply(selected, exerciseCount, { timeAvailable, energy, intensity, avoid })}>Build today's workout <ChevronRight size={17}/></button>
+    <div className="customizer-summary"><span>{selected.length ? selected.map(x=>x[0].toUpperCase()+x.slice(1)).join(" + ") : "Choose a muscle group"}</span><span>{countForTime(timeAvailable)} exercises · {timeAvailable} min</span></div>
+    <button className="primary-button" disabled={!selected.length} onClick={()=>onApply(selected, countForTime(timeAvailable), {timeAvailable, energy, intensity, avoid})}>Build today's workout <ChevronRight size={17}/></button>
   </section></div>;
 }
 function Setup({ profile, onSave, onClose }) {
