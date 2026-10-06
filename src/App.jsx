@@ -75,6 +75,7 @@ function ProfilePanel({ profile, onClose, onSave }) {
 export default function App() {
   const [state,setState]=useState(loadState), [completed,setCompleted]=useState([]), [showAll,setShowAll]=useState(false), [showProfile,setShowProfile]=useState(false), [showCustomizer,setShowCustomizer]=useState(false);
   const [todayPlan,setTodayPlan]=useState(null);
+  const [showSetup,setShowSetup]=useState(()=>!localStorage.getItem(ONBOARDED_KEY));
   useEffect(()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(state)),[state]);
   const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history}),[state.profile,state.history]);
   const workout=todayPlan || defaultWorkout;
@@ -96,7 +97,7 @@ export default function App() {
       <section className="stats-strip" id="history"><div><Trophy size={18}/><strong>{state.history.length}</strong><span>workouts logged</span></div><div><Flame size={18}/><strong>{state.history.length?Math.min(state.history.length,7):0}</strong><span>current streak</span></div><div><History size={18}/><strong>{state.history.length?"Active":"New"}</strong><span>training history</span></div></section>
     </main>
     <footer><span>gymbro · built for consistency</span><span>v0.3</span></footer>
-    {!localStorage.getItem(ONBOARDED_KEY)&&<Setup profile={state.profile} onSave={profile=>{saveProfile(profile);localStorage.setItem(ONBOARDED_KEY,"1")}} onClose={()=>localStorage.setItem(ONBOARDED_KEY,"1")}/>}
+    {showSetup&&<Setup profile={state.profile} onSave={profile=>{saveProfile(profile);localStorage.setItem(ONBOARDED_KEY,"1");setShowSetup(false)}} onClose={()=>{localStorage.setItem(ONBOARDED_KEY,"1");setShowSetup(false)}}/>}
     {showProfile&&<ProfilePanel profile={state.profile} onClose={()=>setShowProfile(false)} onSave={saveProfile}/>}\n    {showCustomizer&&<WorkoutCustomizer focus={workout.focus} count={workout.exercises.length} onApply={applyCustomization} onClose={()=>setShowCustomizer(false)}/>}
   </div>;
 }
