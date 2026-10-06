@@ -49,16 +49,16 @@ function WorkoutCustomizer({ focus, count, onApply, onClose }) {
   </section></div>;
 }
 
-function Setup({ profile, onSave }) {
+function Setup({ profile, onSave, onClose }) {
   const [goal,setGoal]=useState(profile.goal), [days,setDays]=useState(profile.trainingDays), [length,setLength]=useState(profile.sessionLength);
   return <div className="setup-overlay"><section className="setup-card">
-    <div className="setup-brand"><span className="brand-mark">G</span><strong>gymbro</strong></div>
+    <div className="setup-top"><div className="setup-brand"><span className="brand-mark">G</span><strong>gymbro</strong></div><button className="setup-close" onClick={onClose} aria-label="Close setup"><X size={18}/></button></div>
     <span className="section-label">LET'S SET YOU UP</span><h1>Your workouts should fit <em>you.</em></h1>
     <p className="setup-intro">Gymbro uses these basics to decide what you should train and how much work to give you.</p>
     <label>Primary goal</label><div className="choice-grid">{[["fat-loss","Fat loss"],["strength","Get stronger"],["fitness","General fitness"]].map(([v,l])=><button key={v} className={goal===v?"choice selected":"choice"} onClick={()=>setGoal(v)}>{l}</button>)}</div>
     <label>Training days / week</label><div className="segmented">{[3,4,5].map(v=><button key={v} className={days===v?"selected":""} onClick={()=>setDays(v)}>{v}</button>)}</div>
     <label>Typical session</label><div className="segmented">{[30,45,50,60].map(v=><button key={v} className={length===v?"selected":""} onClick={()=>setLength(v)}>{v} min</button>)}</div>
-    <button className="primary-button" onClick={()=>onSave({...profile,goal,trainingDays:days,sessionLength:length})}>Build my Gymbro <ChevronRight size={17}/></button>
+    <button className="primary-button" onClick={()=>onSave({...profile,goal,trainingDays:days,sessionLength:length})}>Build my Gymbro <ChevronRight size={17}/></button><button className="setup-skip" onClick={onClose}>Skip for now</button>
   </section></div>;
 }
 
@@ -96,7 +96,7 @@ export default function App() {
       <section className="stats-strip" id="history"><div><Trophy size={18}/><strong>{state.history.length}</strong><span>workouts logged</span></div><div><Flame size={18}/><strong>{state.history.length?Math.min(state.history.length,7):0}</strong><span>current streak</span></div><div><History size={18}/><strong>{state.history.length?"Active":"New"}</strong><span>training history</span></div></section>
     </main>
     <footer><span>gymbro · built for consistency</span><span>v0.3</span></footer>
-    {!localStorage.getItem(ONBOARDED_KEY)&&<Setup profile={state.profile} onSave={profile=>{saveProfile(profile);localStorage.setItem(ONBOARDED_KEY,"1")}}/>}
+    {!localStorage.getItem(ONBOARDED_KEY)&&<Setup profile={state.profile} onSave={profile=>{saveProfile(profile);localStorage.setItem(ONBOARDED_KEY,"1")}} onClose={()=>localStorage.setItem(ONBOARDED_KEY,"1")}/>}
     {showProfile&&<ProfilePanel profile={state.profile} onClose={()=>setShowProfile(false)} onSave={saveProfile}/>}\n    {showCustomizer&&<WorkoutCustomizer focus={workout.focus} count={workout.exercises.length} onApply={applyCustomization} onClose={()=>setShowCustomizer(false)}/>}
   </div>;
 }
