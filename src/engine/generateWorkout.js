@@ -105,12 +105,22 @@ export function generateWorkout({
   });
 
   let selected;
-  if (shuffle && maxExercises === 1 && candidates.length) {
-    // A single-exercise shuffle should explore the directory rather than
-    // repeatedly taking the same top-ranked alternative.
-    const poolSize = Math.min(8, candidates.length);
-    const pick = Math.floor(Math.random() * poolSize);
-    selected = [candidates[pick].exercise];
+  if (shuffle && maxExercises === 1) {
+    // A single-exercise shuffle must stay inside the muscle being replaced.
+    // The directory is broad, but the substitution pool is deliberately narrow.
+    const focusedCandidates = candidates.filter(({ exercise }) =>
+      exercise.muscles.some((muscle) => focus.includes(muscle))
+    );
+
+    if (focusedCandidates.length) {
+      // Explore the strongest part of the focused pool rather than repeatedly
+      // returning the same top-ranked alternative.
+      const poolSize = Math.min(8, focusedCandidates.length);
+      const pick = Math.floor(Math.random() * poolSize);
+      selected = [focusedCandidates[pick].exercise];
+    } else {
+      selected = [];
+    }
   } else {
     selected = selectExercises(candidates, focus, maxExercises);
   }
