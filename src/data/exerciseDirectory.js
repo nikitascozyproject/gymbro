@@ -211,8 +211,8 @@ export const exerciseDirectory = [
   { id:"straight-bar-pushdown", name:"Straight-Bar Triceps Pushdown", muscles:["triceps"], pattern:"elbow-extension", equipment:["cable"], tags:["isolation"] },
   { id:"single-arm-cable-pushdown", name:"Single-Arm Cable Pushdown", muscles:["triceps"], pattern:"elbow-extension-unilateral", equipment:["cable"], tags:["isolation","unilateral"] },
   { id:"cross-body-cable-extension", name:"Cross-Body Cable Triceps Extension", muscles:["triceps"], pattern:"elbow-extension-unilateral", equipment:["cable"], tags:["isolation","unilateral"] },
-  { id:"cable-kickback", name:"Cable Triceps Kickback", muscles:["triceps"], pattern:"elbow-extension", equipment:["cable"], tags:["isolation"] },
-  { id:"dumbbell-kickback", name:"Dumbbell Triceps Kickback", muscles:["triceps"], pattern:"elbow-extension", equipment:["dumbbells"], tags:["isolation"] },
+  { id:"triceps-cable-kickback", name:"Cable Triceps Kickback", muscles:["triceps"], pattern:"elbow-extension", equipment:["cable"], tags:["isolation"] },
+  { id:"triceps-dumbbell-kickback", name:"Dumbbell Triceps Kickback", muscles:["triceps"], pattern:"elbow-extension", equipment:["dumbbells"], tags:["isolation"] },
   { id:"close-grip-floor-press", name:"Close-Grip Dumbbell Floor Press", muscles:["triceps","chest"], pattern:"horizontal-push", equipment:["dumbbells","floor"], tags:["compound","floor"] },
   { id:"diamond-push-up", name:"Diamond Push-Up", muscles:["triceps","chest"], pattern:"horizontal-push", equipment:["bodyweight"], tags:["compound","bodyweight"] },
 
