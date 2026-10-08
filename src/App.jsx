@@ -225,7 +225,6 @@ function ProfilePanel({ profile, onClose, onSave }) {
 export default function App() {
   const [state,setState]=useState(loadState), [completed,setCompleted]=useState(()=>loadState().completed || []), [showAll,setShowAll]=useState(false), [showProfile,setShowProfile]=useState(false), [showCustomizer,setShowCustomizer]=useState(false), [demoExercise,setDemoExercise]=useState(null);
   const [todayPlan,setTodayPlan]=useState(()=>loadState().todayPlan || null);
-  const [dayClosed,setDayClosed]=useState(()=>loadState().dayClosed || false);
   const [showSetup,setShowSetup]=useState(()=>!localStorage.getItem(ONBOARDED_KEY));
   const activeDate = state.activeDate || getDateKey();
   useEffect(() => {
@@ -234,13 +233,12 @@ export default function App() {
       todayPlan,
       completed,
       activeDate,
-      dayClosed,
     }));
-  }, [state, todayPlan, completed, activeDate, dayClosed]);
+  }, [state, todayPlan, completed, activeDate]);
   const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
   const workout=todayPlan || defaultWorkout;
-  const progress=dayClosed ? 100 : Math.round((completed.length/workout.exercises.length)*100);
-  const status=dayClosed ? "Today is logged" : progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
+  const progress=Math.round((completed.length/workout.exercises.length)*100);
+  const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
   const visible=showAll?workout.exercises:workout.exercises.slice(0,3);
   const toggle=id=>setCompleted(c=>c.includes(id)?c.filter(x=>x!==id):[...c,id]);
   const shuffleExercise=(exercise)=>{
@@ -313,23 +311,38 @@ export default function App() {
 };
   const logToday = (status = progress === 100 ? "completed" : "partial") => {
     if (!completed.length) return;
+
+    const nextHistory = [...state.history, {
+      date: activeDate,
+      type: workout.type,
+      title: workout.title,
+      exerciseIds: [...completed],
+      plannedExerciseIds: workout.exercises.map(x => x.id),
+      completedCount: completed.length,
+      plannedCount: workout.exercises.length,
+      status,
+    }];
+
+    // Finishing a workout immediately advances the session. The calendar is
+    // only used for dating history; it does not lock the user into one session
+    // per day.
+    const nextWorkout = generateWorkout({
+      library: exerciseLibrary,
+      equipment: state.profile.equipment,
+      trainingDays: state.profile.trainingDays,
+      history: nextHistory,
+      sessionLength: state.profile.sessionLength,
+    });
+
     setState(c => ({
       ...c,
-      history: [...c.history, {
-        date: activeDate,
-        type: workout.type,
-        exerciseIds: [...completed],
-        plannedExerciseIds: workout.exercises.map(x => x.id),
-        completedCount: completed.length,
-        plannedCount: workout.exercises.length,
-        status,
-      }],
-      todayPlan: null,
+      history: nextHistory,
+      todayPlan: nextWorkout,
       todayCustomization: null,
     }));
+    setTodayPlan(nextWorkout);
     setCompleted([]);
-    setTodayPlan(null);
-    setDayClosed(true);
+    setShowAll(false);
   };
 
   const finish = () => {
@@ -346,14 +359,11 @@ export default function App() {
     <header className="topbar"><a className="brand" href="#today"><span className="brand-mark">G</span><span>gymbro</span></a><nav><a className="active" href="#today">Today</a><a href="#history">History</a><a href="#profile" onClick={e=>{e.preventDefault();setShowProfile(true)}}>Profile</a></nav><button className="profile-button" onClick={()=>setShowProfile(true)}>N</button></header>
     <main>
       <section className="hero" id="today"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> YOUR DAILY WORKOUT</div><h1>{status}.</h1><p>One focused session. No overthinking. Just show up and move.</p></div><div className="progress-ring" style={{"--progress":`${progress*3.6}deg`}}><strong>{progress}%</strong><span>done</span></div></section>
-      {dayClosed ? <section className="day-closed-card"><div className="next-icon"><Check size={21}/></div><div><span className="section-label">TODAY LOGGED</span><h2>This session is in your history.</h2><p>Gymbro has recorded what you actually completed. Your next calendar day will start with a new recommendation based on this session.</p></div></section> : <>
       <section className="workout-overview"><div><span className="section-label">TODAY · {new Date().toLocaleDateString("en-IN",{weekday:"long",month:"short",day:"numeric"}).toUpperCase()}</span><h2>{workout.title}</h2><p>{workout.subtitle}</p></div><div className="overview-right"><div className="overview-stats"><span><Clock3 size={16}/> {workout.duration}</span><span><Dumbbell size={16}/> {workout.exercises.length} exercises</span><span><Target size={16}/> {workout.focus.join(" · ")}</span></div><button className="customize-button shuffle-workout-button" onClick={shuffleWorkout} title="Shuffle the entire workout"><Shuffle size={15}/> Shuffle workout</button><button className="customize-button" onClick={()=>setShowCustomizer(true)}><SlidersHorizontal size={15}/> Change today’s workout</button></div></section>
       <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise}/>)}</section>
       <div className="list-actions"><button className="secondary-button" onClick={()=>setShowAll(!showAll)}>{showAll?"Show less":"See full workout"} <ChevronRight size={17}/></button>{completed.length>0&&<button className="quiet-button" onClick={()=>setCompleted([])}><RotateCcw size={15}/> Reset</button>}
       {completed.length>0&&progress<100&&<button className="primary-button compact" onClick={finishForToday}>Finish for today <Check size={16}/></button>}
-      {progress===100&&<button className="primary-button compact" onClick={finish}>Log workout <Check size={16}/></button>}</div>
-      </>}
-      <section className="next-card"><div className="next-icon"><Flame size={21}/></div><div><span className="section-label">THE ENGINE</span><h3>Your next workout changes based on what you actually do.</h3><p>Gymbro rotates movement patterns and avoids recently completed exercises when it builds your next session.</p></div><Settings2 className="next-arrow" size={20}/></section>
+      {progress===100&&<button className="primary-button compact" onClick={finish}>Log workout <Check size={16}/></button>}</div>      <section className="next-card"><div className="next-icon"><Flame size={21}/></div><div><span className="section-label">THE ENGINE</span><h3>Your next workout changes based on what you actually do.</h3><p>Gymbro rotates movement patterns and avoids recently completed exercises when it builds your next session.</p></div><Settings2 className="next-arrow" size={20}/></section>
       <section className="stats-strip" id="history"><div><Trophy size={18}/><strong>{state.history.length}</strong><span>workouts logged</span></div><div><Flame size={18}/><strong>{(() => { const dates=[...new Set(state.history.map(x=>x.date))].sort().reverse(); let n=0,d=new Date(); for(const date of dates){if(date!==getDateKey(d)) break;n++;d.setDate(d.getDate()-1);} return n; })()}</strong><span>day streak</span></div><div><History size={18}/><strong>{state.history.length?"Active":"New"}</strong><span>training history</span></div></section>
       <section className="history-panel"><div className="history-panel-head"><span className="section-label">TRAINING HISTORY</span><h2>What you actually did.</h2></div>{state.history.length ? [...state.history].reverse().map((session,index)=><article className="history-item" key={`${session.date}-${index}`}><div className="history-date"><strong>{new Date(`${session.date}T12:00:00`).toLocaleDateString("en-IN",{weekday:"short",month:"short",day:"numeric"})}</strong><span>{session.status === "completed" ? "Completed" : "Partial"}</span></div><div className="history-main"><h3>{session.title || (session.type === "upper" ? "Upper Body + Core" : session.type === "lower" ? "Lower Body + Core" : "Custom Workout")}</h3><p>{session.completedCount} of {session.plannedCount} exercises completed</p><div className="history-exercises">{(session.exerciseIds || []).map(id => exerciseLibrary.find(ex => ex.id === id)?.name).filter(Boolean).map(name=><span key={name}>{name}</span>)}</div></div></article>) : <p className="history-empty">Your completed and partial sessions will appear here.</p>}</section>
     </main>
