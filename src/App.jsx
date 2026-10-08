@@ -38,9 +38,21 @@ function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || empty;
     const today = getDateKey();
+    const hasDateState = Boolean(saved.activeDate);
     const activeDate = saved.activeDate || today;
     const history = Array.isArray(saved.history) ? saved.history : [];
     const completed = Array.isArray(saved.completed) ? saved.completed : [];
+
+    // Older Gymbro versions did not store the workout date. Treat that saved
+    // plan as stale once the new day-aware version loads.
+    if (!hasDateState && saved.todayPlan) {
+      return {
+        ...empty,
+        profile: saved.profile || defaultProfile,
+        history,
+        activeDate: today,
+      };
+    }
 
     // If the user comes back on a new calendar day, preserve whatever they
     // actually completed yesterday before generating a fresh day.
