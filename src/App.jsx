@@ -134,10 +134,7 @@ function SessionGuide({ focus, goal }) {
       <a className="guide-video-link" href={`https://www.youtube.com/watch?v=${warmup.demo.youtubeId}`} target="_blank" rel="noreferrer">
         <Play size={14} fill="currentColor"/>{warmup.demo.label}<ChevronRight size={14}/>
       </a>
-    </section>
-
-
-  </section>;
+    </section>;
 }
 
 function SessionCooldown({ focus, goal }) {
@@ -163,10 +160,7 @@ function SessionCooldown({ focus, goal }) {
       <a className="guide-video-link" href={`https://www.youtube.com/watch?v=${cooldown.demo.youtubeId}`} target="_blank" rel="noreferrer">
         <Play size={14} fill="currentColor"/>{cooldown.demo.label}<ChevronRight size={14}/>
       </a>
-    </section>
-
-  </section>
-  </>;
+    </section>;
 }
 
 function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle }) {
