@@ -98,7 +98,15 @@ export function generateWorkout({
     equipmentModes = ["equipment"],
   } = constraints;
   const timeCaps = { "20": 3, "30": 4, "45": 6, "60+": 7 };
-  const maxExercises = Math.min(exerciseCount, timeCaps[timeAvailable] || exerciseCount);
+  // A custom session needs enough exercises to give every selected muscle
+  // meaningful attention. More muscle groups = more programming volume.
+  const minimumExercisesForFocus = focusOverride?.length
+    ? Math.min(7, Math.max(exerciseCount, focusOverride.length * 2))
+    : exerciseCount;
+  const maxExercises = Math.min(
+    minimumExercisesForFocus,
+    timeCaps[timeAvailable] || minimumExercisesForFocus
+  );
 
   let candidates = buildCandidates({
     library, equipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle,
@@ -148,6 +156,12 @@ export function generateWorkout({
   }
 
   return {
+    recommendedExerciseCount: focusOverride?.length
+      ? Math.min(7, Math.max(2, focusOverride.length * 2))
+      : maxExercises,
+    recommendedTime: focusOverride?.length
+      ? (focusOverride.length >= 3 ? "60+" : focusOverride.length === 2 ? "45" : "30")
+      : timeAvailable,
     id: `${type}-${history.length + 1}-${shuffle ? Date.now() : "base"}`,
     type,
     title: focusOverride?.length
