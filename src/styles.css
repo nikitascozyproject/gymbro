@@ -444,18 +444,33 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
 /* Smart session volume + training history */
 .time-choice-grid button.recommended {
   position: relative;
-  border-color: #151515;
-  box-shadow: 0 0 0 2px rgba(21,21,21,.08);
+  background: #eeece6;
+  color: #5b5a55;
+  border: 1.5px solid #151515;
+  box-shadow: 0 0 0 3px rgba(21,21,21,.08), 0 0 20px rgba(21,21,21,.18);
+  animation: gymbro-suggested-glow 1.8s ease-in-out infinite;
 }
-.time-choice-grid button.recommended small {
-  display: block;
-  margin-top: 4px;
+.time-choice-grid button.recommended::after {
+  content: "suggested";
+  position: absolute;
+  top: -7px;
+  right: 9px;
+  background: #151515;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 6px;
   font-size: 7px;
   line-height: 1;
-  letter-spacing: .07em;
+  letter-spacing: .06em;
   text-transform: uppercase;
   font-weight: 800;
-  color: #66645e;
+}
+.time-choice-grid button.recommended:hover {
+  background: #e6e4dd;
+  box-shadow: 0 0 0 4px rgba(21,21,21,.12), 0 0 24px rgba(21,21,21,.24);
+}
+.time-choice-grid button.recommended.selected {
+  animation: gymbro-suggested-glow 1.8s ease-in-out infinite;
 }
 .smart-time-note {
   display: flex;
