@@ -59,7 +59,7 @@ function matchesEquipment(exercise, equipment) {
   return exercise.equipment.some((item) => equipment.includes(item));
 }
 
-function scoreExercise(exercise, focus, recentIds, energy = "normal", intensity = "moderate", shuffle = false) {
+function scoreExercise(exercise, focus, recentIds, energy = "normal", intensity = "moderate", shuffle = false, behavior = {}) {
   let score = 0;
   if (exercise.muscles.some((muscle) => focus.includes(muscle))) score += 5;
   if (exercise.muscles.includes("core")) score += 2;
@@ -67,6 +67,17 @@ function scoreExercise(exercise, focus, recentIds, energy = "normal", intensity 
   if (energy === "high" && ["raise","raise-2","rear-delt","front-raise"].includes(exercise.pattern)) score += 1;
   if (!recentIds.includes(exercise.id)) score += 4;
   else score -= 6;
+
+  // Learn from what the user actually does. Exercises that are repeatedly
+  // planned but skipped become progressively less likely to appear, without
+  // ever being permanently banned.
+  const stats = behavior[exercise.id];
+  if (stats?.planned) {
+    const skipPenalty = Math.min(12, stats.skipped * 2);
+    const completionBonus = Math.min(2, stats.completed * 0.35);
+    score -= skipPenalty;
+    score += completionBonus;
+  }
   // Shuffle should feel meaningfully different rather than simply selecting the
   // next item in a fixed ranking. The jitter is deliberately small so programming
   // quality still dominates randomness.
@@ -74,7 +85,7 @@ function scoreExercise(exercise, focus, recentIds, energy = "normal", intensity 
   return score;
 }
 
-function buildCandidates({ library, equipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle }) {
+function buildCandidates({ library, equipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle, behavior }) {
   return library
     .filter((exercise) => matchesEquipment(exercise, equipment))
     .filter((exercise) => {
@@ -86,7 +97,7 @@ function buildCandidates({ library, equipment, equipmentModes, focus, recentIds,
     .filter((exercise) => !excludeIds.includes(exercise.id))
     .map((exercise) => ({
       exercise,
-      score: scoreExercise(exercise, focus, recentIds, energy, intensity, shuffle),
+      score: scoreExercise(exercise, focus, recentIds, energy, intensity, shuffle, behavior),
     }))
     .sort((a, b) => b.score - a.score);
 }
@@ -138,6 +149,17 @@ export function generateWorkout({
   singleExerciseShuffle = false,
 }) {
   const recentIds = history.slice(-8).flatMap((session) => session.exerciseIds || []);
+  const behavior = history.reduce((stats, session) => {
+    const planned = session.plannedExerciseIds || [];
+    const done = new Set(session.exerciseIds || []);
+    planned.forEach(id => {
+      stats[id] ||= { planned: 0, completed: 0, skipped: 0 };
+      stats[id].planned += 1;
+      if (done.has(id)) stats[id].completed += 1;
+      else stats[id].skipped += 1;
+    });
+    return stats;
+  }, {});
   const dayIndex = history.length % Math.max(1, Math.min(trainingDays, split.length));
   const type = focusOverride?.length ? "custom" : split[dayIndex % split.length];
   const focus = focusOverride?.length ? focusOverride : focusByDay[type];
@@ -161,7 +183,7 @@ export function generateWorkout({
     );
 
   let candidates = buildCandidates({
-    library, equipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle,
+    library, equipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle, behavior,
   });
 
   let selected;
@@ -199,6 +221,7 @@ export function generateWorkout({
       intensity,
       excludeIds: [],
       shuffle,
+      behavior,
     }).filter(({ exercise }) => !selected.some((item) => item.id === exercise.id));
     selected = selectExercises(
       [...selected.map((exercise) => ({ exercise, score: 999 })), ...fallbackCandidates],
