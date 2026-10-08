@@ -97,10 +97,9 @@ function loadState() {
 }
 
 function SessionGuide({ focus, goal }) {
-  const { warmup, cooldown } = getSessionGuide(focus, goal);
+  const { warmup } = getSessionGuide(focus, goal);
 
-  return <>
-    <section className="session-guide warmup-guide">
+  return <section className="session-guide warmup-guide">
       <div className="session-guide-head">
         <div>
           <span className="section-label">SUGGESTED WARM-UP · OPTIONAL</span>
@@ -137,6 +136,14 @@ function SessionGuide({ focus, goal }) {
       </a>
     </section>
 
+
+  </section>;
+}
+
+function SessionCooldown({ focus, goal }) {
+  const { cooldown } = getSessionGuide(focus, goal);
+
+  return <>
     <section className="session-guide cooldown-guide">
       <div className="session-guide-head">
         <div>
@@ -157,6 +164,8 @@ function SessionGuide({ focus, goal }) {
         <Play size={14} fill="currentColor"/>{cooldown.demo.label}<ChevronRight size={14}/>
       </a>
     </section>
+
+  </section>
   </>;
 }
 
@@ -433,6 +442,7 @@ export default function App() {
       <section className="workout-overview"><div><span className="section-label">TODAY · {new Date().toLocaleDateString("en-IN",{weekday:"long",month:"short",day:"numeric"}).toUpperCase()}</span><h2>{workout.title}</h2><p>{workout.subtitle}</p></div><div className="overview-right"><div className="overview-stats"><span><Clock3 size={16}/> {workout.duration}</span><span><Dumbbell size={16}/> {workout.exercises.length} exercises</span><span><Target size={16}/> {workout.focus.join(" · ")}</span></div><button className="customize-button shuffle-workout-button" onClick={shuffleWorkout} title="Shuffle the entire workout"><Shuffle size={15}/> Shuffle workout</button><button className="customize-button" onClick={()=>setShowCustomizer(true)}><SlidersHorizontal size={15}/> Change today’s workout</button></div></section>
       <SessionGuide focus={workout.focus.map(x => x.toLowerCase())} goal={state.profile.goal} />
       <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise}/>)}</section>
+      <SessionCooldown focus={workout.focus.map(x => x.toLowerCase())} goal={state.profile.goal} />
       <div className="list-actions"><button className="secondary-button" onClick={()=>setShowAll(!showAll)}>{showAll?"Show less":"See full workout"} <ChevronRight size={17}/></button>{completed.length>0&&<button className="quiet-button" onClick={()=>setCompleted([])}><RotateCcw size={15}/> Reset</button>}
       {completed.length>0&&progress<100&&<button className="primary-button compact" onClick={finishForToday}>Finish my workout <Check size={16}/></button>}
       {progress===100&&<button className="primary-button compact" onClick={finish}>Finish my workout <Check size={16}/></button>}</div>      <section className="next-card"><div className="next-icon"><Flame size={21}/></div><div><span className="section-label">THE ENGINE</span><h3>Your next workout changes based on what you actually do.</h3><p>Gymbro rotates movement patterns and avoids recently completed exercises when it builds your next session.</p></div><Settings2 className="next-arrow" size={20}/></section>
