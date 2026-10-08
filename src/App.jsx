@@ -254,11 +254,17 @@ export default function App() {
     equipment:state.profile.equipment,
     trainingDays:state.profile.trainingDays,
     history:state.history,
-    focusOverride:[exercise.muscles[0]],
+    // Keep the replacement pool inside the muscles the user actually chose.
+    // A back+shoulder session can therefore replace a back exercise with a
+    // shoulder exercise rather than silently narrowing the shuffle to back.
+    focusOverride:state.todayCustomization?.muscles?.length
+      ? state.todayCustomization.muscles
+      : [...new Set(workout.exercises.flatMap(item=>item.muscles))],
     exerciseCount:1,
     constraints,
     excludeIds:currentIds,
     shuffle:true,
+    singleExerciseShuffle:true,
   });
   const replacement = alternatives.exercises[0];
   if(!replacement || replacement.id === exercise.id || currentIds.includes(replacement.id)) return;
