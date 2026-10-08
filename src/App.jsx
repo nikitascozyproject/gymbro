@@ -180,7 +180,7 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
     <div className="muscle-grid">{MUSCLES.map(muscle => <button key={muscle} className={`muscle-choice ${selected.includes(muscle) ? "selected" : ""} ${suggestedMuscles.includes(muscle) && !selected.includes(muscle) ? "suggested" : ""}`} onClick={()=>toggleMuscle(muscle)}><span>{MUSCLE_LABELS[muscle]}</span>{selected.includes(muscle) && <Check size={15}/>}</button>)}</div>
 
     <label>How much time do you have?</label>
-    <div className="time-choice-grid">{["20","30","45","60+"].map(value => <button key={value} className={`${timeAvailable===value ? "selected" : ""} ${recommendedTime===value ? "recommended" : ""}`} onClick={()=>setTimeAvailable(value)}><strong>{value}</strong><span>min</span>{recommendedTime===value && <small>suggested</small>}</button>)}</div>
+    <div className="time-choice-grid">{["20","30","45","60+"].map(value => <button key={value} className={`${timeAvailable===value ? "selected" : ""} ${recommendedTime===value ? "recommended" : ""}`} onClick={()=>setTimeAvailable(value)}><strong>{value}</strong><span>min</span></button>)}</div>
     {selected.length > 1 && <p className="smart-time-note"><Sparkles size={13}/> {selected.length >= 3 ? "Three or more muscle groups need a longer session. Gymbro suggests 60+ minutes." : "Two muscle groups need enough volume. Gymbro suggests 45 minutes."}</p>}
 
     <button className={`more-options ${showMore ? "open" : ""}`} onClick={()=>setShowMore(!showMore)}>{showMore ? "Hide extra options" : "More options"} <ChevronRight size={15}/></button>
