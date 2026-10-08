@@ -135,6 +135,7 @@ export function generateWorkout({
   constraints = {},
   excludeIds = [],
   shuffle = false,
+  singleExerciseShuffle = false,
 }) {
   const recentIds = history.slice(-8).flatMap((session) => session.exerciseIds || []);
   const dayIndex = history.length % Math.max(1, Math.min(trainingDays, split.length));
@@ -152,10 +153,12 @@ export function generateWorkout({
   const minimumExercisesForFocus = focusOverride?.length
     ? Math.min(7, Math.max(exerciseCount, focusOverride.length * 2))
     : exerciseCount;
-  const maxExercises = Math.min(
-    minimumExercisesForFocus,
-    timeCaps[timeAvailable] || minimumExercisesForFocus
-  );
+  const maxExercises = singleExerciseShuffle
+    ? 1
+    : Math.min(
+      minimumExercisesForFocus,
+      timeCaps[timeAvailable] || minimumExercisesForFocus
+    );
 
   let candidates = buildCandidates({
     library, equipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle,
