@@ -154,14 +154,22 @@ function ExerciseDemo({ exercise, onClose }) {
 function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose }) {
   const saved = savedCustomization || {};
   const [selected, setSelected] = useState(saved.muscles?.length ? saved.muscles : focus.map(x => x.toLowerCase()));
-  const [timeAvailable, setTimeAvailable] = useState(saved.timeAvailable || "45");
+  const recommendedTime = selected.length >= 3 ? "60+" : selected.length === 2 ? "45" : "30";
+  const recommendedExercises = Math.min(7, Math.max(2, selected.length * 2));
+  const [timeAvailable, setTimeAvailable] = useState(saved.timeAvailable || recommendedTime);
   const [showMore, setShowMore] = useState(false);
   const [energy, setEnergy] = useState(saved.energy || "normal");
   const [intensity, setIntensity] = useState(saved.intensity || "moderate");
   const [equipmentModes, setEquipmentModes] = useState(saved.equipmentModes || ["equipment"]);
 
   const toggleMuscle = muscle => setSelected(current => current.includes(muscle) ? current.filter(item => item !== muscle) : [...current, muscle]);
-  const countForTime = time => ({ "20": 2, "30": 4, "45": 5, "60+": 7 }[time] || count);
+  useEffect(() => {
+    if (selected.length >= 3 && timeAvailable !== "60+") setTimeAvailable("60+");
+    else if (selected.length === 2 && timeAvailable === "20") setTimeAvailable("45");
+    else if (selected.length === 1 && timeAvailable === "60+") setTimeAvailable("30");
+  }, [selected.length]);
+
+  const countForTime = time => Math.min(7, Math.max(recommendedExercises, ({ "20": 2, "30": 4, "45": 6, "60+": 7 }[time] || count)));
   const suggestedMuscles = [...new Set(selected.flatMap(m => MUSCLE_PAIRINGS[m] || []))].filter(m => !selected.includes(m)).slice(0, 3);
 
   return <div className="customizer-overlay" onClick={onClose}><section className="customizer-card simple-customizer" onClick={e=>e.stopPropagation()}>
@@ -172,7 +180,8 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
     <div className="muscle-grid">{MUSCLES.map(muscle => <button key={muscle} className={`muscle-choice ${selected.includes(muscle) ? "selected" : ""} ${suggestedMuscles.includes(muscle) && !selected.includes(muscle) ? "suggested" : ""}`} onClick={()=>toggleMuscle(muscle)}><span>{MUSCLE_LABELS[muscle]}</span>{selected.includes(muscle) && <Check size={15}/>}</button>)}</div>
 
     <label>How much time do you have?</label>
-    <div className="time-choice-grid">{["20","30","45","60+"].map(value => <button key={value} className={timeAvailable===value ? "selected" : ""} onClick={()=>setTimeAvailable(value)}><strong>{value}</strong><span>min</span></button>)}</div>
+    <div className="time-choice-grid">{["20","30","45","60+"].map(value => <button key={value} className={`${timeAvailable===value ? "selected" : ""} ${recommendedTime===value ? "recommended" : ""}`} onClick={()=>setTimeAvailable(value)}><strong>{value}</strong><span>min</span>{recommendedTime===value && <small>suggested</small>}</button>)}</div>
+    {selected.length > 1 && <p className="smart-time-note"><Sparkles size={13}/> {selected.length >= 3 ? "Three or more muscle groups need a longer session. Gymbro suggests 60+ minutes." : "Two muscle groups need enough volume. Gymbro suggests 45 minutes."}</p>}
 
     <button className={`more-options ${showMore ? "open" : ""}`} onClick={()=>setShowMore(!showMore)}>{showMore ? "Hide extra options" : "More options"} <ChevronRight size={15}/></button>
 
