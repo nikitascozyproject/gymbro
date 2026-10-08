@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronRight, Clock3, Dumbbell, Flame, History, Play, RotateCcw, Settings2, Sparkles, Target, Trophy, X, SlidersHorizontal, Shuffle } from "lucide-react";
 import { defaultProfile, exerciseLibrary } from "./data/workouts";
 import { generateWorkout } from "./engine/generateWorkout";
+import { getSessionGuide } from "./data/sessionGuides";
 
 const STORAGE_KEY = "gymbro-state-v1";
 const ONBOARDED_KEY = "gymbro-onboarded";
@@ -93,6 +94,70 @@ function loadState() {
   } catch {
     return empty;
   }
+}
+
+function SessionGuide({ focus, goal }) {
+  const { warmup, cooldown } = getSessionGuide(focus, goal);
+
+  return <>
+    <section className="session-guide warmup-guide">
+      <div className="session-guide-head">
+        <div>
+          <span className="section-label">SUGGESTED WARM-UP · OPTIONAL</span>
+          <h2>{warmup.title}</h2>
+          <p>{warmup.description}</p>
+        </div>
+        <div className="guide-badge"><Clock3 size={15}/><span>5–10 min</span></div>
+      </div>
+
+      <div className="cardio-options">
+        {warmup.cardioOptions.map(option => <a
+          key={option.name}
+          className="cardio-option"
+          href={`https://www.youtube.com/watch?v=${option.youtubeId}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <div><strong>{option.name}</strong><span>{option.detail}</span></div>
+          <Play size={15} fill="currentColor"/>
+        </a>)}
+      </div>
+
+      <p className="guide-note"><Sparkles size={13}/>{warmup.cardioNote}</p>
+
+      <div className="guide-movements">
+        {warmup.movements.map((movement,index) => <div className="guide-movement" key={movement.name}>
+          <span>{String(index + 1).padStart(2,"0")}</span>
+          <div><strong>{movement.name}</strong><small>{movement.detail}</small></div>
+        </div>)}
+      </div>
+
+      <a className="guide-video-link" href={`https://www.youtube.com/watch?v=${warmup.demo.youtubeId}`} target="_blank" rel="noreferrer">
+        <Play size={14} fill="currentColor"/>{warmup.demo.label}<ChevronRight size={14}/>
+      </a>
+    </section>
+
+    <section className="session-guide cooldown-guide">
+      <div className="session-guide-head">
+        <div>
+          <span className="section-label">SUGGESTED COOLDOWN · OPTIONAL</span>
+          <h2>{cooldown.title}</h2>
+          <p>{cooldown.description}</p>
+        </div>
+        <div className="guide-badge"><Clock3 size={15}/><span>3–5 min</span></div>
+      </div>
+      <div className="guide-movements cooldown-movements">
+        {cooldown.movements.map((movement,index) => <a className="guide-movement" href={movement.url} target="_blank" rel="noreferrer" key={movement.name}>
+          <span>{String(index + 1).padStart(2,"0")}</span>
+          <div><strong>{movement.name}</strong><small>Watch demo on YouTube</small></div>
+          <ChevronRight size={14}/>
+        </a>)}
+      </div>
+      <a className="guide-video-link" href={`https://www.youtube.com/watch?v=${cooldown.demo.youtubeId}`} target="_blank" rel="noreferrer">
+        <Play size={14} fill="currentColor"/>{cooldown.demo.label}<ChevronRight size={14}/>
+      </a>
+    </section>
+  </>;
 }
 
 function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle }) {
@@ -366,6 +431,7 @@ export default function App() {
     <main>
       <section className="hero" id="today"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> YOUR DAILY WORKOUT</div><h1>{status}.</h1><p>One focused session. No overthinking. Just show up and move.</p></div><div className="progress-ring" style={{"--progress":`${progress*3.6}deg`}}><strong>{progress}%</strong><span>done</span></div></section>
       <section className="workout-overview"><div><span className="section-label">TODAY · {new Date().toLocaleDateString("en-IN",{weekday:"long",month:"short",day:"numeric"}).toUpperCase()}</span><h2>{workout.title}</h2><p>{workout.subtitle}</p></div><div className="overview-right"><div className="overview-stats"><span><Clock3 size={16}/> {workout.duration}</span><span><Dumbbell size={16}/> {workout.exercises.length} exercises</span><span><Target size={16}/> {workout.focus.join(" · ")}</span></div><button className="customize-button shuffle-workout-button" onClick={shuffleWorkout} title="Shuffle the entire workout"><Shuffle size={15}/> Shuffle workout</button><button className="customize-button" onClick={()=>setShowCustomizer(true)}><SlidersHorizontal size={15}/> Change today’s workout</button></div></section>
+      <SessionGuide focus={workout.focus.map(x => x.toLowerCase())} goal={state.profile.goal} />
       <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise}/>)}</section>
       <div className="list-actions"><button className="secondary-button" onClick={()=>setShowAll(!showAll)}>{showAll?"Show less":"See full workout"} <ChevronRight size={17}/></button>{completed.length>0&&<button className="quiet-button" onClick={()=>setCompleted([])}><RotateCcw size={15}/> Reset</button>}
       {completed.length>0&&progress<100&&<button className="primary-button compact" onClick={finishForToday}>Finish my workout <Check size={16}/></button>}
