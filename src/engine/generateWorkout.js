@@ -7,6 +7,54 @@ const focusByDay = {
 
 const dayNames = { lower: "Lower Body + Core", upper: "Upper Body + Core" };
 
+// Gymbro allocates more exercise slots to larger / higher-volume muscle groups.
+// This is deliberately anatomy/programming-based, not gender-based.
+const muscleVolumeWeight = {
+  glutes: 2,
+  quads: 2,
+  hamstrings: 1.5,
+  back: 2,
+  chest: 1.5,
+  shoulders: 1,
+  triceps: 0.9,
+  biceps: 0.8,
+  core: 0.8,
+};
+
+function getMuscleTargets(focus, totalExercises) {
+  if (!focus.length) return {};
+  if (focus.length === 1) return { [focus[0]]: totalExercises };
+
+  const weights = focus.map((muscle) => muscleVolumeWeight[muscle] || 1);
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  const raw = weights.map((weight) => (weight / totalWeight) * totalExercises);
+  const targets = raw.map((value) => Math.max(1, Math.floor(value)));
+  let assigned = targets.reduce((sum, value) => sum + value, 0);
+
+  // Distribute rounding leftovers to the muscles with the largest fractional
+  // share, so the final total always equals the requested exercise count.
+  const order = raw
+    .map((value, index) => ({ index, fraction: value - Math.floor(value) }))
+    .sort((a, b) => b.fraction - a.fraction);
+
+  for (let i = 0; assigned < totalExercises; i += 1) {
+    targets[order[i % order.length].index] += 1;
+    assigned += 1;
+  }
+
+  while (assigned > totalExercises) {
+    const removable = targets
+      .map((value, index) => ({ value, index }))
+      .filter((item) => item.value > 1)
+      .sort((a, b) => b.value - a.value)[0];
+    if (!removable) break;
+    targets[removable.index] -= 1;
+    assigned -= 1;
+  }
+
+  return Object.fromEntries(focus.map((muscle, index) => [muscle, targets[index]]));
+}
+
 function matchesEquipment(exercise, equipment) {
   return exercise.equipment.some((item) => equipment.includes(item));
 }
@@ -46,11 +94,12 @@ function buildCandidates({ library, equipment, equipmentModes, focus, recentIds,
 function selectExercises(candidates, focus, maxExercises) {
   const selected = [];
   const usedPatterns = new Set();
-  const perMuscle = Math.floor(maxExercises / Math.max(1, focus.length));
-  const remainder = maxExercises % Math.max(1, focus.length);
+  const targets = getMuscleTargets(focus, maxExercises);
 
-  focus.forEach((muscle, muscleIndex) => {
-    const target = perMuscle + (muscleIndex < remainder ? 1 : 0);
+  // Larger muscle groups receive more slots. This keeps a seven-exercise
+  // back+biceps session closer to 5+2 than an arbitrary 4+3 split.
+  focus.forEach((muscle) => {
+    const target = targets[muscle] || 1;
     const muscleCandidates = candidates.filter(({ exercise }) =>
       exercise.muscles.includes(muscle) && !selected.some((item) => item.id === exercise.id)
     );
