@@ -169,7 +169,7 @@ export function generateWorkout({
     intensity = "moderate",
     equipmentModes = ["equipment"],
   } = constraints;
-  const timeCaps = { "20": 3, "30": 4, "45": 6, "60+": 7 };
+  const timeCaps = { "20": 3, "30": 4, "45": 5, "60+": 7 };
   // A custom session needs enough exercises to give every selected muscle
   // meaningful attention. More muscle groups = more programming volume.
   const minimumExercisesForFocus = focusOverride?.length
