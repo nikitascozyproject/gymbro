@@ -33,6 +33,7 @@ function loadState() {
     todayCustomization: null,
     activeDate: getDateKey(),
     completed: [],
+    dayClosed: false,
   };
 
   try {
@@ -42,6 +43,7 @@ function loadState() {
     const activeDate = saved.activeDate || today;
     const history = Array.isArray(saved.history) ? saved.history : [];
     const completed = Array.isArray(saved.completed) ? saved.completed : [];
+    const dayClosed = Boolean(saved.dayClosed);
 
     // Older Gymbro versions did not store the workout date. Treat that saved
     // plan as stale once the new day-aware version loads.
@@ -51,19 +53,21 @@ function loadState() {
         profile: saved.profile || defaultProfile,
         history,
         activeDate: today,
+        dayClosed: false,
       };
     }
 
     // If the user comes back on a new calendar day, preserve whatever they
     // actually completed yesterday before generating a fresh day.
-    if (activeDate !== today && saved.todayPlan) {
-      const completedIds = completed.filter(id =>
+    if (activeDate !== today) {
+      const completedIds = saved.todayPlan ? completed.filter(id =>
         saved.todayPlan.exercises?.some(exercise => exercise.id === id)
-      );
+      ) : [];
       if (completedIds.length) {
         history.push({
           date: activeDate,
           type: saved.todayPlan.type,
+          title: saved.todayPlan.title,
           exerciseIds: completedIds,
           plannedExerciseIds: saved.todayPlan.exercises.map(exercise => exercise.id),
           completedCount: completedIds.length,
@@ -212,6 +216,7 @@ function ProfilePanel({ profile, onClose, onSave }) {
 export default function App() {
   const [state,setState]=useState(loadState), [completed,setCompleted]=useState(()=>loadState().completed || []), [showAll,setShowAll]=useState(false), [showProfile,setShowProfile]=useState(false), [showCustomizer,setShowCustomizer]=useState(false), [demoExercise,setDemoExercise]=useState(null);
   const [todayPlan,setTodayPlan]=useState(()=>loadState().todayPlan || null);
+  const [dayClosed,setDayClosed]=useState(()=>loadState().dayClosed || false);
   const [showSetup,setShowSetup]=useState(()=>!localStorage.getItem(ONBOARDED_KEY));
   const activeDate = state.activeDate || getDateKey();
   useEffect(() => {
@@ -220,13 +225,14 @@ export default function App() {
       todayPlan,
       completed,
       activeDate,
+      dayClosed,
     }));
-  }, [state, todayPlan, completed, activeDate]);
+  }, [state, todayPlan, completed, activeDate, dayClosed]);
   const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
-  const workout=todayPlan || defaultWorkout;
-  const progress=Math.round((completed.length/workout.exercises.length)*100);
-  const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
-  const visible=showAll?workout.exercises:workout.exercises.slice(0,3);
+  const workout=dayClosed ? null : (todayPlan || defaultWorkout);
+  const progress=workout ? Math.round((completed.length/workout.exercises.length)*100) : 100;
+  const status=dayClosed ? "Today is logged" : progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
+  const visible=workout ? (showAll?workout.exercises:workout.exercises.slice(0,3)) : [];
   const toggle=id=>setCompleted(c=>c.includes(id)?c.filter(x=>x!==id):[...c,id]);
   const shuffleExercise=(exercise)=>{
   const constraints = state.todayCustomization || {
@@ -314,6 +320,7 @@ export default function App() {
     }));
     setCompleted([]);
     setTodayPlan(null);
+    setDayClosed(true);
   };
 
   const finish = () => {
