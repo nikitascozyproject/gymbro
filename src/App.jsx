@@ -383,7 +383,7 @@ export default function App() {
   setShowAll(false);
   setShowCustomizer(false);
 };
-  const logToday = (status = progress === 100 ? "completed" : "partial") => {
+  const logToday = (status = "completed") => {
     if (!completed.length) return;
 
     const nextHistory = [...state.history, {
