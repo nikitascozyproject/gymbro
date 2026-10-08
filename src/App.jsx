@@ -238,7 +238,7 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
     else if (selected.length === 1 && timeAvailable === "60+") setTimeAvailable("30");
   }, [selected.length]);
 
-  const countForTime = time => Math.min(7, Math.max(recommendedExercises, ({ "20": 2, "30": 4, "45": 6, "60+": 7 }[time] || count)));
+  const countForTime = time => Math.min(7, Math.max(recommendedExercises, ({ "20": 2, "30": 4, "45": 5, "60+": 7 }[time] || count)));
   const suggestedMuscles = [...new Set(selected.flatMap(m => MUSCLE_PAIRINGS[m] || []))].filter(m => !selected.includes(m)).slice(0, 3);
 
   return <div className="customizer-overlay" onClick={onClose}><section className="customizer-card simple-customizer" onClick={e=>e.stopPropagation()}>
