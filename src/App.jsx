@@ -20,12 +20,62 @@ const MUSCLE_PAIRINGS = {
 };
 const MUSCLE_LABELS = Object.fromEntries(MUSCLES.map(m => [m, m[0].toUpperCase() + m.slice(1)]));
 
+function getDateKey(date = new Date()) {
+  const local = new Date(date);
+  return `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, "0")}-${String(local.getDate()).padStart(2, "0")}`;
+}
+
 function loadState() {
+  const empty = {
+    profile: defaultProfile,
+    history: [],
+    todayPlan: null,
+    todayCustomization: null,
+    activeDate: getDateKey(),
+    completed: [],
+  };
+
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return saved || { profile: defaultProfile, history: [], todayPlan: null, todayCustomization: null };
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || empty;
+    const today = getDateKey();
+    const activeDate = saved.activeDate || today;
+    const history = Array.isArray(saved.history) ? saved.history : [];
+    const completed = Array.isArray(saved.completed) ? saved.completed : [];
+
+    // If the user comes back on a new calendar day, preserve whatever they
+    // actually completed yesterday before generating a fresh day.
+    if (activeDate !== today && saved.todayPlan) {
+      const completedIds = completed.filter(id =>
+        saved.todayPlan.exercises?.some(exercise => exercise.id === id)
+      );
+      if (completedIds.length) {
+        history.push({
+          date: activeDate,
+          type: saved.todayPlan.type,
+          exerciseIds: completedIds,
+          plannedExerciseIds: saved.todayPlan.exercises.map(exercise => exercise.id),
+          completedCount: completedIds.length,
+          plannedCount: saved.todayPlan.exercises.length,
+          status: completedIds.length === saved.todayPlan.exercises.length ? "completed" : "partial",
+        });
+      }
+      return {
+        ...empty,
+        profile: saved.profile || defaultProfile,
+        history,
+        activeDate: today,
+      };
+    }
+
+    return {
+      ...empty,
+      ...saved,
+      history,
+      completed,
+      activeDate,
+    };
   } catch {
-    return { profile: defaultProfile, history: [], todayPlan: null, todayCustomization: null };
+    return empty;
   }
 }
 
@@ -148,10 +198,18 @@ function ProfilePanel({ profile, onClose, onSave }) {
 }
 
 export default function App() {
-  const [state,setState]=useState(loadState), [completed,setCompleted]=useState([]), [showAll,setShowAll]=useState(false), [showProfile,setShowProfile]=useState(false), [showCustomizer,setShowCustomizer]=useState(false), [demoExercise,setDemoExercise]=useState(null);
+  const [state,setState]=useState(loadState), [completed,setCompleted]=useState(()=>loadState().completed || []), [showAll,setShowAll]=useState(false), [showProfile,setShowProfile]=useState(false), [showCustomizer,setShowCustomizer]=useState(false), [demoExercise,setDemoExercise]=useState(null);
   const [todayPlan,setTodayPlan]=useState(()=>loadState().todayPlan || null);
   const [showSetup,setShowSetup]=useState(()=>!localStorage.getItem(ONBOARDED_KEY));
-  useEffect(()=>localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,todayPlan})),[state,todayPlan]);
+  const activeDate = state.activeDate || getDateKey();
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      ...state,
+      todayPlan,
+      completed,
+      activeDate,
+    }));
+  }, [state, todayPlan, completed, activeDate]);
   const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
   const workout=todayPlan || defaultWorkout;
   const progress=Math.round((completed.length/workout.exercises.length)*100);
@@ -226,7 +284,35 @@ export default function App() {
   setShowAll(false);
   setShowCustomizer(false);
 };
-  const finish=()=>{if(progress!==100)return;setState(c=>({...c,history:[...c.history,{date:new Date().toISOString(),type:workout.type,exerciseIds:workout.exercises.map(x=>x.id)}]}));setCompleted([]);setTodayPlan(null);setState(c=>({...c,todayPlan:null}));};
+  const logToday = (status = progress === 100 ? "completed" : "partial") => {
+    if (!completed.length) return;
+    setState(c => ({
+      ...c,
+      history: [...c.history, {
+        date: activeDate,
+        type: workout.type,
+        exerciseIds: [...completed],
+        plannedExerciseIds: workout.exercises.map(x => x.id),
+        completedCount: completed.length,
+        plannedCount: workout.exercises.length,
+        status,
+      }],
+      todayPlan: null,
+      todayCustomization: null,
+    }));
+    setCompleted([]);
+    setTodayPlan(null);
+  };
+
+  const finish = () => {
+    if (progress !== 100) return;
+    logToday("completed");
+  };
+
+  const finishForToday = () => {
+    if (!completed.length) return;
+    logToday("partial");
+  };
   const saveProfile=profile=>{setState(c=>({...c,profile}));setShowProfile(false);};
   return <div className="app-shell">
     <header className="topbar"><a className="brand" href="#today"><span className="brand-mark">G</span><span>gymbro</span></a><nav><a className="active" href="#today">Today</a><a href="#history">History</a><a href="#profile" onClick={e=>{e.preventDefault();setShowProfile(true)}}>Profile</a></nav><button className="profile-button" onClick={()=>setShowProfile(true)}>N</button></header>
@@ -234,7 +320,9 @@ export default function App() {
       <section className="hero" id="today"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> YOUR DAILY WORKOUT</div><h1>{status}.</h1><p>One focused session. No overthinking. Just show up and move.</p></div><div className="progress-ring" style={{"--progress":`${progress*3.6}deg`}}><strong>{progress}%</strong><span>done</span></div></section>
       <section className="workout-overview"><div><span className="section-label">TODAY · {new Date().toLocaleDateString("en-IN",{weekday:"long",month:"short",day:"numeric"}).toUpperCase()}</span><h2>{workout.title}</h2><p>{workout.subtitle}</p></div><div className="overview-right"><div className="overview-stats"><span><Clock3 size={16}/> {workout.duration}</span><span><Dumbbell size={16}/> {workout.exercises.length} exercises</span><span><Target size={16}/> {workout.focus.join(" · ")}</span></div><button className="customize-button shuffle-workout-button" onClick={shuffleWorkout} title="Shuffle the entire workout"><Shuffle size={15}/> Shuffle workout</button><button className="customize-button" onClick={()=>setShowCustomizer(true)}><SlidersHorizontal size={15}/> Change today’s workout</button></div></section>
       <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise}/>)}</section>
-      <div className="list-actions"><button className="secondary-button" onClick={()=>setShowAll(!showAll)}>{showAll?"Show less":"See full workout"} <ChevronRight size={17}/></button>{completed.length>0&&<button className="quiet-button" onClick={()=>setCompleted([])}><RotateCcw size={15}/> Reset</button>}{progress===100&&<button className="primary-button compact" onClick={finish}>Log workout <Check size={16}/></button>}</div>
+      <div className="list-actions"><button className="secondary-button" onClick={()=>setShowAll(!showAll)}>{showAll?"Show less":"See full workout"} <ChevronRight size={17}/></button>{completed.length>0&&<button className="quiet-button" onClick={()=>setCompleted([])}><RotateCcw size={15}/> Reset</button>}
+      {completed.length>0&&progress<100&&<button className="primary-button compact" onClick={finishForToday}>Finish for today <Check size={16}/></button>}
+      {progress===100&&<button className="primary-button compact" onClick={finish}>Log workout <Check size={16}/></button>}</div>
       <section className="next-card"><div className="next-icon"><Flame size={21}/></div><div><span className="section-label">THE ENGINE</span><h3>Your next workout changes based on what you actually do.</h3><p>Gymbro rotates movement patterns and avoids recently completed exercises when it builds your next session.</p></div><Settings2 className="next-arrow" size={20}/></section>
       <section className="stats-strip" id="history"><div><Trophy size={18}/><strong>{state.history.length}</strong><span>workouts logged</span></div><div><Flame size={18}/><strong>{state.history.length?Math.min(state.history.length,7):0}</strong><span>current streak</span></div><div><History size={18}/><strong>{state.history.length?"Active":"New"}</strong><span>training history</span></div></section>
     </main>
