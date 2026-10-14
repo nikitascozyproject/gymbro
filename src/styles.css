@@ -782,3 +782,119 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
 @media (max-width: 640px) {
   .post-workout-section { padding: 20px; }
 }
+
+
+/* Refined session-guide hierarchy and alignment */
+.session-stage {
+  width: 100%;
+  margin: 22px 0 28px;
+}
+.session-stage .session-guide {
+  width: 100%;
+  margin: 0;
+  padding: clamp(22px, 3vw, 32px);
+  border-radius: 22px;
+  background: #f8f7f3;
+}
+.session-guide-head {
+  align-items: center;
+  gap: 24px;
+}
+.session-guide-head > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.session-guide .section-label {
+  display: block;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: .15em;
+  font-weight: 800;
+  color: #77756e;
+}
+.session-guide-head h2 {
+  margin: 9px 0 10px;
+  font-size: clamp(25px, 3vw, 34px);
+  line-height: 1.08;
+  letter-spacing: -.055em;
+}
+.session-guide-head p {
+  max-width: 680px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.guide-badge {
+  padding: 9px 12px;
+  font-size: 12px;
+}
+.cardio-options {
+  gap: 12px;
+  margin-top: 24px;
+}
+.cardio-option {
+  min-height: 62px;
+  padding: 16px 18px;
+  border-radius: 15px;
+}
+.cardio-option strong { font-size: 14px; }
+.cardio-option span { font-size: 12px; line-height: 1.4; }
+.guide-note {
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.guide-movements {
+  gap: 12px;
+  margin-top: 20px;
+}
+.guide-movement {
+  min-height: 62px;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 15px;
+}
+.guide-movement > span {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+  font-size: 10px;
+}
+.guide-movement strong { font-size: 13px; line-height: 1.35; }
+.guide-movement small { margin-top: 4px; font-size: 11px; line-height: 1.4; }
+.guide-video-link {
+  gap: 8px;
+  margin-top: 20px;
+  font-size: 13px;
+}
+.stage-action {
+  display: flex;
+  width: fit-content;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 14px 0 0 auto;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 750;
+}
+.post-workout-section .session-guide {
+  padding: 0;
+}
+@media (max-width: 700px) {
+  .session-stage { margin: 16px 0 22px; }
+  .session-stage .session-guide { padding: 20px; }
+  .session-guide-head { flex-direction: row; align-items: flex-start; gap: 12px; }
+  .session-guide-head h2 { font-size: 25px; }
+  .session-guide-head p { font-size: 13px; }
+  .guide-badge { font-size: 11px; padding: 8px 9px; }
+  .cardio-options, .guide-movements { grid-template-columns: 1fr; }
+  .cardio-option { min-height: 58px; }
+  .stage-action { width: 100%; margin-top: 12px; }
+}
+@media (max-width: 420px) {
+  .session-guide-head { flex-direction: column; }
+}
