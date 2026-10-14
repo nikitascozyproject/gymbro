@@ -749,3 +749,36 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
     max-height: 92vh;
   }
 }
+
+.post-workout-section {
+  margin: 28px 0 40px;
+  padding: 28px;
+  border: 1px solid var(--line, #d9d8d1);
+  border-radius: 22px;
+  background: #eeede6;
+}
+.post-workout-heading {
+  margin-bottom: 20px;
+}
+.post-workout-heading h2 {
+  margin: 8px 0;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  letter-spacing: -.04em;
+}
+.post-workout-heading p {
+  max-width: 620px;
+  color: #77766f;
+  line-height: 1.6;
+}
+.post-workout-section .session-guide {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.post-workout-section .post-workout-continue {
+  margin-top: 22px;
+}
+@media (max-width: 640px) {
+  .post-workout-section { padding: 20px; }
+}
