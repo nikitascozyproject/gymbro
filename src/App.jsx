@@ -150,9 +150,7 @@ function SessionCooldown({ focus, goal }) {
           <div><strong>{movement.name}</strong><small>{movement.detail}</small>{movement.instruction&&<p className="guide-instruction">{movement.instruction}</p>}</div>
         </div>)}
       </div>
-      <a className="guide-video-link" href={`https://www.youtube.com/watch?v=${cooldown.demo.youtubeId}`} target="_blank" rel="noreferrer">
-        <Play size={14} fill="currentColor"/>{cooldown.demo.label}<ChevronRight size={14}/>
-      </a>
+      <p className="warmup-quick-note">Hold each stretch gently, breathe normally, and stop if you feel pain.</p>
     </section>
   </>;
 }
@@ -379,7 +377,7 @@ export default function App() {
 };
   const logToday = (status = "completed") => {
     if (!completed.length) return;
-    const finishedFocus = { focus: workout.focus.map(x => x.toLowerCase()), goal: state.profile.goal };
+    const finishedFocus = { focus: (state.todayCustomization?.muscles?.length ? state.todayCustomization.muscles : workout.focus).map(x => x.toLowerCase()), goal: state.profile.goal };
 
     const nextHistory = [...state.history, {
       date: activeDate,
@@ -434,7 +432,7 @@ export default function App() {
       <section className="hero" id="today"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> YOUR DAILY WORKOUT</div><h1>{status}.</h1><p>One focused session. No overthinking. Just show up and move.</p></div><div className="progress-ring" style={{"--progress":`${progress*3.6}deg`}}><strong>{progress}%</strong><span>done</span></div></section>
       <section className="workout-overview"><div><span className="section-label">TODAY · {new Date().toLocaleDateString("en-IN",{weekday:"long",month:"short",day:"numeric"}).toUpperCase()}</span><h2>{workout.title}</h2><p>{workout.subtitle}</p></div><div className="overview-right"><div className="overview-stats"><span><Clock3 size={16}/> {workout.duration}</span><span><Dumbbell size={16}/> {workout.exercises.length} exercises</span><span><Target size={16}/> {workout.focus.join(" · ")}</span></div><button className="customize-button shuffle-workout-button" onClick={shuffleWorkout} title="Shuffle the entire workout"><Shuffle size={15}/> Shuffle workout</button><button className="customize-button" onClick={()=>setShowCustomizer(true)}><SlidersHorizontal size={15}/> Change today’s workout</button></div></section>
       {<section className="session-stage warmup-stage">
-        <SessionGuide focus={workout.focus.map(x => x.toLowerCase())} goal={state.profile.goal} />
+        <SessionGuide focus={(state.todayCustomization?.muscles?.length ? state.todayCustomization.muscles : workout.focus).map(x => x.toLowerCase())} goal={state.profile.goal} />
         <button className="primary-button stage-action" onClick={()=>{setSessionStage("workout");localStorage.setItem("gymbro-session-stage","workout");}}>Mark warm-up as completed <Check size={16}/></button>
       </section>}
       {(sessionStage === "workout" || sessionStage === "cooldown") && <>
