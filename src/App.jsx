@@ -170,7 +170,7 @@ function ExerciseDemo({ exercise, onClose }) {
   const demo = exercise.demo || {};
   const youtubeUrl = demo.youtubeId
     ? `https://www.youtube.com/watch?v=${demo.youtubeId}`
-    : `https://www.youtube.com/results?search_query=${encodeURIComponent(exercise.name + " exercise demonstration")}`;
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent(exercise.name + " proper form tutorial demonstration")}`;
 
   return <div className="demo-overlay" onClick={onClose}>
     <section className="demo-card" onClick={e=>e.stopPropagation()}>
@@ -194,8 +194,8 @@ function ExerciseDemo({ exercise, onClose }) {
       ) : (
         <div className="demo-fallback">
           <div className="demo-fallback-icon"><Play size={22} fill="currentColor"/></div>
-          <strong>Demo video coming up</strong>
-          <p>We haven't pinned a video for this exercise yet. You can find the YouTube demonstration here.</p>
+          <strong>Find a form tutorial</strong>
+          <p>This movement does not have a hand-picked video yet. Open a pre-filled search for form tutorials, compare demonstrations, and choose one that clearly shows the full movement.</p>
           <a href={youtubeUrl} target="_blank" rel="noreferrer" className="primary-button">Watch on YouTube <ChevronRight size={16}/></a>
         </div>
       )}
