@@ -60,20 +60,64 @@ export function getSessionGuide(focus = [], goal = "fitness") {
     warmup.demo = { youtubeId: "o4GKiEoYClI", label: "Watch a core warm-up movement" };
   }
 
-  const cooldownType = isLower && !isUpper ? "lower" : "upper";
-  const cooldown = cooldownType === "lower"
-    ? {
-        title: "Bring it down",
-        description: "Finish with a few minutes of easy breathing and lower-body mobility. Stretch gently — no forcing range.",
-        demo: { youtubeId: guideVideos.lowerCooldown, label: "Watch lower-body cooldown" },
-        movements: ["Child's pose", "Low lunge", "Quad stretch", "Glute stretch"],
-      }
-    : {
-        title: "Bring it down",
-        description: "Let your breathing settle, then use gentle upper-body stretches for the areas you trained.",
-        demo: { youtubeId: guideVideos.upperCooldown, label: "Watch upper-body cooldown" },
-        movements: ["Long stretch", "Lat stretch", "Shoulder stretch", "Chest stretch"],
-      };
+  const muscleLabels = [...selected].map(m => ({
+    glutes: "glutes", quads: "quads", hamstrings: "hamstrings", back: "back",
+    shoulders: "shoulders", chest: "chest", biceps: "biceps", triceps: "triceps", core: "core"
+  }[m] || m));
+  const focusText = muscleLabels.length > 1
+    ? muscleLabels.slice(0, -1).join(", ") + " and " + muscleLabels[muscleLabels.length - 1]
+    : muscleLabels[0] || "the muscles you trained";
+
+  // Add a few target-specific prep movements so mixed sessions prepare all
+  // selected regions instead of defaulting to only upper or lower body.
+  const addWarmup = movement => {
+    if (!warmup.movements.some(item => item.name === movement.name)) warmup.movements.push(movement);
+  };
+  if (selected.has("quads") && warmupType === "lower") {
+    addWarmup({ name: "Ankle rocks", detail: "8 each side · gentle range", instruction: "Stand facing a wall with one foot forward. Keep the heel down and move the knee gently toward the wall, then ease back." });
+  }
+  if (selected.has("chest")) {
+    addWarmup({ name: "Wall slides", detail: "8 slow reps · comfortable range", instruction: "Stand with your back near a wall, elbows bent. Slide your arms upward only as far as comfortable, then lower slowly." });
+  }
+  if (selected.has("biceps") || selected.has("triceps")) {
+    addWarmup({ name: "Elbow bends", detail: "10 easy reps", instruction: "Keep upper arms near your sides. Slowly bend and straighten your elbows through a comfortable range without weights." });
+  }
+  if (selected.has("core") && (isLower || isUpper)) {
+    addWarmup({ name: "Standing brace", detail: "5 slow breaths", instruction: "Stand tall, breathe normally, and gently tighten your midsection as if preparing for a light nudge. Keep breathing; don't suck in or strain." });
+  }
+  warmup.title = isLower && isUpper
+    ? "Prime your full body"
+    : isLower && !isUpper
+      ? "Prime your lower body"
+      : isCore && !isUpper
+        ? "Prime your core"
+        : "Prime your upper body";
+  warmup.description = `A short, easy warm-up for ${focusText}. Do the movements below at a comfortable pace; they should prepare you, not tire you out.`;
+
+  const cooldownMovements = [];
+  const addCooldown = (name, detail, instruction) => {
+    if (!cooldownMovements.some(item => item.name === name)) {
+      cooldownMovements.push({ name, detail, instruction });
+    }
+  };
+  if (selected.has("glutes")) addCooldown("Figure-four glute stretch", "20–30 sec each side", "Lie on your back, cross one ankle over the opposite thigh, and gently draw the legs toward you until you feel a mild glute stretch.");
+  if (selected.has("quads")) addCooldown("Standing quad stretch", "20–30 sec each side", "Hold a wall for balance, bring your heel toward your glute, and keep knees close. Stop if your knee hurts.");
+  if (selected.has("hamstrings")) addCooldown("Hamstring stretch", "20–30 sec each side", "Place one heel slightly forward, soften the standing knee, hinge at the hips, and keep your back long until you feel a gentle stretch.");
+  if (selected.has("back")) addCooldown("Child's pose with reach", "20–30 sec", "Kneel and sit hips back toward heels, reach arms forward, and breathe into your upper back. Skip if kneeling is uncomfortable.");
+  if (selected.has("chest")) addCooldown("Doorway chest stretch", "20–30 sec each side", "Place your forearm on a doorframe with elbow below shoulder height and gently turn away until the front of your chest stretches.");
+  if (selected.has("shoulders")) addCooldown("Cross-body shoulder stretch", "20–30 sec each side", "Bring one arm across your chest and gently draw it closer with the other arm. Keep shoulders relaxed.");
+  if (selected.has("biceps")) addCooldown("Gentle biceps stretch", "20 sec each side", "Place your palm against a wall behind you at a comfortable height and slowly turn your body away until you feel a mild stretch in the front of the arm.");
+  if (selected.has("triceps")) addCooldown("Overhead triceps stretch", "20–30 sec each side", "Reach one arm overhead, bend the elbow so your hand moves behind your head, and gently support the elbow with the other hand.");
+  if (selected.has("core")) addCooldown("Easy cobra / abdominal stretch", "15–20 sec · gentle", "Lie on your stomach and press up lightly through your hands, keeping hips down. Only lift as far as your lower back feels comfortable.");
+  if (!cooldownMovements.length) {
+    addCooldown("Slow breathing", "5–6 relaxed breaths", "Sit or stand comfortably. Breathe in gently through your nose and exhale slowly, letting your heart rate settle.");
+    addCooldown("Gentle full-body reach", "20 sec", "Reach arms overhead, lengthen through your body, and breathe normally without forcing the stretch.");
+  }
+  const cooldown = {
+    title: "Bring it down",
+    description: `Finish with gentle stretches for ${focusText}. Hold each position without bouncing, breathe normally, and ease off if anything feels painful.`,
+    movements: cooldownMovements,
+  };
 
   if (goal === "fat-loss") {
     warmup.cardioNote = "Gymbro suggestion: use the cardio as an easy warm-up, not a punishment. You choose the duration.";
@@ -88,9 +132,9 @@ export function getSessionGuide(focus = [], goal = "fitness") {
     { name: "Elliptical", detail: "5–10 min · easy resistance", youtubeId: guideVideos.elliptical },
   ];
 
-  cooldown.movements = cooldown.movements.map(name => ({
-    name,
-    url: youtubeSearch(`${name} stretch cooldown exercise demonstration`),
+  cooldown.movements = cooldown.movements.map(movement => ({
+    ...movement,
+    url: youtubeSearch(`${movement.name} stretch cooldown exercise demonstration`),
   }));
 
   return { warmup, cooldown };
