@@ -898,3 +898,28 @@ footer { max-width: 1060px; margin: 0 auto; padding: 0 24px 35px; display: flex;
 @media (max-width: 420px) {
   .session-guide-head { flex-direction: column; }
 }
+
+
+/* Warm-up is a quick-read guide, not a video funnel */
+.cardio-option-static {
+  cursor: default;
+}
+.cardio-option-static:hover {
+  transform: none;
+  border-color: #dedcd4;
+  box-shadow: none;
+}
+.cardio-choice-label {
+  flex: 0 0 auto;
+  color: #77756e;
+  font-size: 11px;
+  font-weight: 700;
+}
+.warmup-quick-note {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid #e2e0d8;
+  color: #66645e;
+  font-size: 13px;
+  line-height: 1.5;
+}
