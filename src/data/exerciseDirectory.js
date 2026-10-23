@@ -230,6 +230,39 @@ export const exerciseDirectory = [
   { id:"weighted-sit-up", name:"Weighted Sit-Up", muscles:["core"], pattern:"spinal-flexion", equipment:["plate","dumbbells","floor"], tags:["core","weighted"] },
   { id:"v-up", name:"V-Up", muscles:["core"], pattern:"spinal-flexion", equipment:["bodyweight","floor"], tags:["core","advanced"] },
 
+
+  // EXERCISE BANK EXPANSION — more angles, resistance profiles, and accessible alternatives
+  { id:"45-degree-hip-extension-glute", name:"45-Degree Hip Extension (Glute Bias)", muscles:["glutes","hamstrings"], pattern:"hip-extension", equipment:["machine"], tags:["compound","glute-focus"] },
+  { id:"cable-hip-extension", name:"Standing Cable Hip Extension", muscles:["glutes"], pattern:"hip-extension-isolation", equipment:["cable"], tags:["isolation"] },
+  { id:"dumbbell-sumo-deadlift", name:"Dumbbell Sumo Deadlift", muscles:["glutes","hamstrings"], pattern:"hinge", equipment:["dumbbells"], tags:["compound","hinge"] },
+  { id:"box-squat", name:"Box Squat", muscles:["quads","glutes"], pattern:"squat", equipment:["barbell","bench"], tags:["compound"] },
+  { id:"goblet-box-squat", name:"Goblet Box Squat", muscles:["quads","glutes"], pattern:"squat", equipment:["dumbbells","bench"], tags:["compound","accessible"] },
+  { id:"assisted-split-squat", name:"Supported Split Squat", muscles:["quads","glutes"], pattern:"split-squat", equipment:["bodyweight"], tags:["unilateral","beginner-friendly"] },
+  { id:"hamstring-walkout", name:"Hamstring Walkout", muscles:["hamstrings","glutes","core"], pattern:"knee-flexion", equipment:["bodyweight","floor"], tags:["bodyweight"] },
+  { id:"single-leg-glute-bridge-hamstring", name:"Single-Leg Bridge Walkout", muscles:["hamstrings","glutes"], pattern:"knee-flexion", equipment:["bodyweight","floor"], tags:["unilateral"] },
+  { id:"banded-good-morning", name:"Banded Good Morning", muscles:["hamstrings","glutes"], pattern:"hinge", equipment:["resistance-band"], tags:["hinge"] },
+  { id:"kneeling-single-arm-pulldown", name:"Half-Kneeling Single-Arm Pulldown", muscles:["back","biceps"], pattern:"vertical-pull-unilateral", equipment:["cable"], tags:["compound","unilateral"] },
+  { id:"underhand-barbell-row", name:"Underhand Barbell Row", muscles:["back","biceps"], pattern:"horizontal-pull", equipment:["barbell"], tags:["compound"] },
+  { id:"dumbbell-pendlay-row", name:"Dumbbell Pendlay Row", muscles:["back","biceps"], pattern:"horizontal-pull", equipment:["dumbbells"], tags:["compound"] },
+  { id:"cable-high-row", name:"Cable High Row", muscles:["back","biceps"], pattern:"horizontal-pull", equipment:["cable"], tags:["compound"] },
+  { id:"lean-away-cable-lateral-raise", name:"Lean-Away Cable Lateral Raise", muscles:["shoulders"], pattern:"lateral-raise", equipment:["cable"], tags:["isolation"] },
+  { id:"seated-rear-delt-fly", name:"Seated Rear-Delt Fly", muscles:["shoulders"], pattern:"rear-delt", equipment:["dumbbells","bench"], tags:["isolation"] },
+  { id:"shoulder-external-rotation", name:"Cable External Rotation", muscles:["shoulders"], pattern:"external-rotation", equipment:["cable"], tags:["accessory","rotator-cuff"] },
+  { id:"incline-push-up", name:"Incline Push-Up", muscles:["chest","triceps","shoulders"], pattern:"horizontal-push", equipment:["bodyweight","bench"], tags:["compound","beginner-friendly"] },
+  { id:"single-arm-cable-chest-press", name:"Single-Arm Cable Chest Press", muscles:["chest","triceps","core"], pattern:"horizontal-push-unilateral", equipment:["cable"], tags:["compound","unilateral"] },
+  { id:"standing-cable-chest-fly", name:"Standing Cable Chest Fly", muscles:["chest"], pattern:"fly", equipment:["cable"], tags:["isolation"] },
+  { id:"alternating-dumbbell-curl", name:"Alternating Dumbbell Curl", muscles:["biceps"], pattern:"elbow-flexion", equipment:["dumbbells"], tags:["isolation"] },
+  { id:"seated-hammer-curl", name:"Seated Hammer Curl", muscles:["biceps"], pattern:"elbow-flexion-neutral", equipment:["dumbbells","bench"], tags:["isolation"] },
+  { id:"drag-curl", name:"Barbell Drag Curl", muscles:["biceps"], pattern:"elbow-flexion", equipment:["barbell"], tags:["isolation"] },
+  { id:"lying-overhead-dumbbell-extension", name:"Lying Overhead Dumbbell Triceps Extension", muscles:["triceps"], pattern:"elbow-extension-overhead", equipment:["dumbbells","bench"], tags:["isolation"] },
+  { id:"bodyweight-triceps-extension", name:"Bodyweight Triceps Extension", muscles:["triceps"], pattern:"elbow-extension", equipment:["bodyweight","bar"], tags:["bodyweight"] },
+  { id:"bench-assisted-triceps-dip", name:"Bent-Knee Bench Dip", muscles:["triceps","chest"], pattern:"dip", equipment:["bench"], tags:["bodyweight","regression"] },
+  { id:"lying-leg-raise", name:"Lying Leg Raise", muscles:["core"], pattern:"hip-flexion", equipment:["bodyweight","floor"], tags:["core","bodyweight"] },
+  { id:"plank-knee-to-elbow", name:"Plank Knee-to-Elbow", muscles:["core","shoulders"], pattern:"anti-rotation", equipment:["bodyweight","floor"], tags:["core","bodyweight"] },
+  { id:"seated-knee-tuck", name:"Seated Knee Tuck", muscles:["core"], pattern:"hip-flexion", equipment:["bodyweight","bench"], tags:["core"] },
+  { id:"standing-cable-woodchop", name:"Standing Cable Wood Chop", muscles:["core"], pattern:"rotation", equipment:["cable"], tags:["core","rotation"] },
+  { id:"suitcase-carry", name:"Dumbbell Suitcase Carry", muscles:["core"], pattern:"anti-lateral-flexion", equipment:["dumbbells"], tags:["core","carry"] },
+
 ];
 
 export const exerciseDirectoryByMuscle = exerciseDirectory.reduce((groups, exercise) => {
