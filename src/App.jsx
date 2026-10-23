@@ -124,7 +124,7 @@ function SessionGuide({ focus, goal }) {
       <div className="guide-movements">
         {warmup.movements.filter(movement => movement.name !== "Easy cardio").map((movement,index) => <div className="guide-movement" key={movement.name}>
           <span>{String(index + 1).padStart(2,"0")}</span>
-          <div><strong>{movement.name}</strong><small>{movement.detail}</small></div>
+          <div><strong>{movement.name}</strong><small>{movement.detail}</small>{movement.instruction&&<p className="guide-instruction">{movement.instruction}</p>}</div>
         </div>)}
       </div>
       <p className="warmup-quick-note">That’s it. Keep it easy, then get into your first working set.</p>
