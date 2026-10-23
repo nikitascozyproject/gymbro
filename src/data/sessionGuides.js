@@ -104,23 +104,6 @@ export function getSessionGuide(focus = [], goal = "fitness") {
     ? muscleLabels.slice(0, -1).join(", ") + " and " + muscleLabels[muscleLabels.length - 1]
     : muscleLabels[0] || "the muscles you trained";
 
-  // Add a few target-specific prep movements so mixed sessions prepare all
-  // selected regions instead of defaulting to only upper or lower body.
-  const addWarmup = movement => {
-    if (!warmup.movements.some(item => item.name === movement.name)) warmup.movements.push(movement);
-  };
-  if (selected.has("quads") && warmupType === "lower") {
-    addWarmup({ name: "Ankle rocks", detail: "8 each side · gentle range", instruction: "Stand facing a wall with one foot forward. Keep the heel down and move the knee gently toward the wall, then ease back." });
-  }
-  if (selected.has("chest")) {
-    addWarmup({ name: "Wall slides", detail: "8 slow reps · comfortable range", instruction: "Stand with your back near a wall, elbows bent. Slide your arms upward only as far as comfortable, then lower slowly." });
-  }
-  if (selected.has("biceps") || selected.has("triceps")) {
-    addWarmup({ name: "Elbow bends", detail: "10 easy reps", instruction: "Keep upper arms near your sides. Slowly bend and straighten your elbows through a comfortable range without weights." });
-  }
-  if (selected.has("core") && (isLower || isUpper)) {
-    addWarmup({ name: "Standing brace", detail: "5 slow breaths", instruction: "Stand tall, breathe normally, and gently tighten your midsection as if preparing for a light nudge. Keep breathing; don't suck in or strain." });
-  }
   warmup.title = isLower && isUpper
     ? "Prime your full body"
     : isLower && !isUpper
