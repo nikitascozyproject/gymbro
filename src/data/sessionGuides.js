@@ -27,10 +27,10 @@ export function getSessionGuide(focus = [], goal = "fitness") {
         demo: { youtubeId: guideVideos.lowerWarmup, label: "Watch lower-body warm-up" },
         movements: [
           { name: "Easy cardio", detail: "5–10 min · treadmill or elliptical · comfortable pace" },
-          { name: "Leg swings", detail: "8–10 each side · controlled" },
-          { name: "Bodyweight squats", detail: "8–10 reps · easy range" },
+          { name: "Leg swings", detail: "8–10 each side · controlled", instruction: "Hold a wall or rack. Swing one leg forward and back in a small, comfortable range; keep your torso still." },
+          { name: "Bodyweight squats", detail: "8–10 reps · easy range", instruction: "Stand with feet about shoulder-width apart. Push hips back, bend knees, then stand tall. Stop at a comfortable depth." },
           ...(selected.has("glutes") || selected.has("hamstrings")
-            ? [{ name: "Glute bridges", detail: "10–12 reps · squeeze, don't fatigue" }]
+            ? [{ name: "Glute bridges", detail: "10–12 reps · squeeze, don't fatigue", instruction: "Lie on your back with knees bent and feet flat. Lift hips by squeezing your glutes, pause briefly, then lower." }]
             : []),
         ],
       }
@@ -40,10 +40,10 @@ export function getSessionGuide(focus = [], goal = "fitness") {
         demo: { youtubeId: guideVideos.upperWarmup, label: "Watch upper-body warm-up" },
         movements: [
           { name: "Easy cardio", detail: "5–10 min · treadmill or elliptical · comfortable pace" },
-          { name: "Arm circles", detail: "8–10 each direction · controlled" },
-          { name: "Thoracic rotations", detail: "6–8 each side · easy range" },
+          { name: "Arm circles", detail: "8–10 each direction · controlled", instruction: "Stretch arms out to the sides. Make small circles, gradually a little larger, then reverse direction." },
+          { name: "Thoracic rotations", detail: "6–8 each side · easy range", instruction: "Stand or kneel comfortably, cross arms over chest, and gently rotate your upper back side to side without forcing it." },
           ...(selected.has("back") || selected.has("shoulders")
-            ? [{ name: "Band pull-aparts", detail: "10–12 reps · light resistance" }]
+            ? [{ name: "Band pull-aparts", detail: "10–12 reps · light resistance", instruction: "Hold a light band at chest height with soft elbows. Pull hands apart until the band reaches your chest, then return slowly." }]
             : []),
         ],
       };
@@ -53,9 +53,9 @@ export function getSessionGuide(focus = [], goal = "fitness") {
     warmup.description = "Raise your temperature first, then switch to controlled trunk movement. Nothing here should fatigue your core.";
     warmup.movements = [
       { name: "Easy cardio", detail: "5–10 min · treadmill or elliptical · comfortable pace" },
-      { name: "Cat-cow", detail: "6–8 slow reps · breathe through the movement" },
-      { name: "Bird dog", detail: "6–8 each side · controlled" },
-      { name: "Dead bug", detail: "6–8 each side · easy, deliberate reps" },
+      { name: "Cat-cow", detail: "6–8 slow reps · breathe through the movement", instruction: "On hands and knees, gently round your back as you exhale, then lift your chest and let your back arch slightly as you inhale." },
+      { name: "Bird dog", detail: "6–8 each side · controlled", instruction: "On hands and knees, reach one arm forward and the opposite leg back. Keep hips level, return, and switch sides." },
+      { name: "Dead bug", detail: "6–8 each side · easy, deliberate reps", instruction: "Lie on your back with arms up and knees bent. Slowly lower opposite arm and leg while keeping your lower back gently against the floor; alternate." },
     ];
     warmup.demo = { youtubeId: "o4GKiEoYClI", label: "Watch a core warm-up movement" };
   }
