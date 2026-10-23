@@ -171,6 +171,10 @@ function ExerciseDemo({ exercise, onClose }) {
   const youtubeUrl = demo.youtubeId
     ? `https://www.youtube.com/watch?v=${demo.youtubeId}`
     : `https://www.youtube.com/results?search_query=${encodeURIComponent(exercise.name + " proper form tutorial demonstration")}`;
+  // Andrew Kwong (DeltaBolic) has short-form demonstrations for many common
+  // movements. Search his channel for the exact exercise instead of guessing
+  // a Shorts ID when we have not verified a specific matching video.
+  const andrewShortsUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent("Andrew Kwong DeltaBolic " + exercise.name + " Shorts form")}`;
 
   return <div className="demo-overlay" onClick={onClose}>
     <section className="demo-card" onClick={e=>e.stopPropagation()}>
@@ -196,7 +200,8 @@ function ExerciseDemo({ exercise, onClose }) {
           <div className="demo-fallback-icon"><Play size={22} fill="currentColor"/></div>
           <strong>Find a form tutorial</strong>
           <p>This movement does not have a hand-picked video yet. Open a pre-filled search for form tutorials, compare demonstrations, and choose one that clearly shows the full movement.</p>
-          <a href={youtubeUrl} target="_blank" rel="noreferrer" className="primary-button">Watch on YouTube <ChevronRight size={16}/></a>
+          <a href={andrewShortsUrl} target="_blank" rel="noreferrer" className="primary-button">Find Andrew Kwong’s Short <ChevronRight size={16}/></a>
+          <a href={youtubeUrl} target="_blank" rel="noreferrer" className="demo-youtube-link">Search all form tutorials <ChevronRight size={14}/></a>
         </div>
       )}
 
