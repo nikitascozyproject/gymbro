@@ -60,6 +60,42 @@ export function getSessionGuide(focus = [], goal = "fitness") {
     warmup.demo = { youtubeId: "o4GKiEoYClI", label: "Watch a core warm-up movement" };
   }
 
+  // Build the warm-up from every selected muscle group, including mixed sessions.
+  // Keep it brief: one easy cardio choice plus a few targeted movements.
+  const targetedWarmup = [
+    { name: "Easy cardio", detail: "5 min · treadmill or elliptical · easy pace", instruction: "Choose either machine and move at a pace where you can still talk comfortably." },
+  ];
+  const addTargeted = (movement) => {
+    if (!targetedWarmup.some(item => item.name === movement.name)) targetedWarmup.push(movement);
+  };
+  if (isLower) {
+    addTargeted({ name: "Leg swings", detail: "8 each side · controlled", instruction: "Hold a rack or wall. Swing one leg forward and back in a small, comfortable range while keeping your torso still." });
+  }
+  if (selected.has("quads")) {
+    addTargeted({ name: "Bodyweight squats", detail: "8 easy reps", instruction: "Stand about shoulder-width apart, sit your hips back, bend your knees, then stand tall. Use a comfortable depth." });
+  }
+  if (selected.has("glutes") || selected.has("hamstrings")) {
+    addTargeted({ name: "Glute bridges", detail: "10 easy reps", instruction: "Lie on your back with knees bent and feet flat. Lift your hips by squeezing your glutes, pause, then lower." });
+  }
+  if (isUpper) {
+    addTargeted({ name: "Arm circles", detail: "8 each direction", instruction: "Hold your arms out to the sides and make small, controlled circles. Reverse direction halfway through." });
+  }
+  if (selected.has("back") || selected.has("shoulders")) {
+    addTargeted({ name: "Band pull-aparts", detail: "10 reps · light band", instruction: "Hold a light band at chest height. Pull your hands apart, keeping shoulders relaxed, then return slowly." });
+  }
+  if (selected.has("chest")) {
+    addTargeted({ name: "Wall slides", detail: "8 slow reps", instruction: "Stand near a wall and slide your arms upward only as far as comfortable, then lower slowly." });
+  }
+  if (selected.has("biceps") || selected.has("triceps")) {
+    addTargeted({ name: "Elbow bends", detail: "10 easy reps", instruction: "Keep your upper arms near your sides. Slowly bend and straighten your elbows without weights." });
+  }
+  if (isCore) {
+    addTargeted({ name: "Bird dog", detail: "6 each side", instruction: "On hands and knees, reach one arm forward and the opposite leg back. Keep your hips level, return, and switch." });
+  }
+  // Avoid turning the warm-up into a second workout on broad multi-muscle days.
+  warmup.movements = targetedWarmup.slice(0, 6);
+  warmup.demo = null;
+
   const muscleLabels = [...selected].map(m => ({
     glutes: "glutes", quads: "quads", hamstrings: "hamstrings", back: "back",
     shoulders: "shoulders", chest: "chest", biceps: "biceps", triceps: "triceps", core: "core"
