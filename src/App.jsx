@@ -145,11 +145,10 @@ function SessionCooldown({ focus, goal }) {
         <div className="guide-badge"><Clock3 size={15}/><span>3–5 min</span></div>
       </div>
       <div className="guide-movements cooldown-movements">
-        {cooldown.movements.map((movement,index) => <a className="guide-movement" href={movement.url} target="_blank" rel="noreferrer" key={movement.name}>
+        {cooldown.movements.map((movement,index) => <div className="guide-movement" key={movement.name}>
           <span>{String(index + 1).padStart(2,"0")}</span>
           <div><strong>{movement.name}</strong><small>{movement.detail}</small>{movement.instruction&&<p className="guide-instruction">{movement.instruction}</p>}</div>
-          <ChevronRight size={14}/>
-        </a>)}
+        </div>)}
       </div>
       <a className="guide-video-link" href={`https://www.youtube.com/watch?v=${cooldown.demo.youtubeId}`} target="_blank" rel="noreferrer">
         <Play size={14} fill="currentColor"/>{cooldown.demo.label}<ChevronRight size={14}/>
