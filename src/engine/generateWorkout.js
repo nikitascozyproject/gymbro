@@ -87,6 +87,10 @@ function scoreExercise(exercise, focus, recentIds, energy = "normal", intensity 
 
 function buildCandidates({ library, equipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle, behavior }) {
   return library
+    // Treat the first listed muscle as the exercise's primary target.
+    // Secondary involvement alone must not make an exercise eligible for a
+    // selected-muscle workout (e.g. a chest press that also uses the core).
+    .filter((exercise) => exercise.muscles?.length && focus.includes(exercise.muscles[0]))
     .filter((exercise) => matchesEquipment(exercise, equipment))
     .filter((exercise) => {
       if (equipmentModes.includes("equipment") && exercise.equipment.some((item) => item !== "bodyweight")) return true;
