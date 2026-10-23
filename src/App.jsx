@@ -110,30 +110,24 @@ function SessionGuide({ focus, goal }) {
       </div>
 
       <div className="cardio-options">
-        {warmup.cardioOptions.map(option => <a
+        {warmup.cardioOptions.map(option => <div
           key={option.name}
-          className="cardio-option"
-          href={`https://www.youtube.com/watch?v=${option.youtubeId}`}
-          target="_blank"
-          rel="noreferrer"
+          className="cardio-option cardio-option-static"
         >
           <div><strong>{option.name}</strong><span>{option.detail}</span></div>
-          <Play size={15} fill="currentColor"/>
-        </a>)}
+          <span className="cardio-choice-label">Your choice</span>
+        </div>)}
       </div>
 
       <p className="guide-note"><Sparkles size={13}/>{warmup.cardioNote}</p>
 
       <div className="guide-movements">
-        {warmup.movements.map((movement,index) => <div className="guide-movement" key={movement.name}>
+        {warmup.movements.filter(movement => movement.name !== "Easy cardio").map((movement,index) => <div className="guide-movement" key={movement.name}>
           <span>{String(index + 1).padStart(2,"0")}</span>
           <div><strong>{movement.name}</strong><small>{movement.detail}</small></div>
         </div>)}
       </div>
-
-      <a className="guide-video-link" href={`https://www.youtube.com/watch?v=${warmup.demo.youtubeId}`} target="_blank" rel="noreferrer">
-        <Play size={14} fill="currentColor"/>{warmup.demo.label}<ChevronRight size={14}/>
-      </a>
+      <p className="warmup-quick-note">That’s it. Keep it easy, then get into your first working set.</p>
     </section>;
 }
 
