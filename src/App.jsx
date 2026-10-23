@@ -147,7 +147,7 @@ function SessionCooldown({ focus, goal }) {
       <div className="guide-movements cooldown-movements">
         {cooldown.movements.map((movement,index) => <a className="guide-movement" href={movement.url} target="_blank" rel="noreferrer" key={movement.name}>
           <span>{String(index + 1).padStart(2,"0")}</span>
-          <div><strong>{movement.name}</strong><small>Watch demo on YouTube</small></div>
+          <div><strong>{movement.name}</strong><small>{movement.detail}</small>{movement.instruction&&<p className="guide-instruction">{movement.instruction}</p>}</div>
           <ChevronRight size={14}/>
         </a>)}
       </div>
