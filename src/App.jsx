@@ -314,12 +314,10 @@ export default function App() {
     equipment:state.profile.equipment,
     trainingDays:state.profile.trainingDays,
     history:state.history,
-    // Keep the replacement pool inside the muscles the user actually chose.
-    // A back+shoulder session can therefore replace a back exercise with a
-    // shoulder exercise rather than silently narrowing the shuffle to back.
-    focusOverride:state.todayCustomization?.muscles?.length
-      ? state.todayCustomization.muscles
-      : [...new Set(workout.exercises.flatMap(item=>item.muscles))],
+    // Replace the movement within its own primary muscle group. A shuffle
+    // on a back exercise must never return a core, chest, or shoulder exercise
+    // merely because those muscles are also part of the wider session.
+    focusOverride: [exercise.muscles?.[0] || state.todayCustomization?.muscles?.[0] || "back"],
     exerciseCount:1,
     constraints,
     excludeIds:currentIds,
