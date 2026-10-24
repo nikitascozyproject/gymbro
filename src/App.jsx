@@ -512,6 +512,6 @@ export default function App() {
     {showSetup&&<Setup profile={state.profile} onSave={profile=>{saveProfile(profile);localStorage.setItem(ONBOARDED_KEY,"1");setShowSetup(false)}} onClose={()=>{localStorage.setItem(ONBOARDED_KEY,"1");setShowSetup(false)}}/>}
     {showProfile&&<ProfilePanel profile={state.profile} onClose={()=>setShowProfile(false)} onSave={saveProfile}/>}
     {showCustomizer&&<WorkoutCustomizer focus={workout.focus} count={workout.exercises.length} savedCustomization={state.todayCustomization} onApply={applyCustomization} onClose={()=>setShowCustomizer(false)}/>}
-    {demoExercise&&<ExerciseDemo exercise={demoExercise} onClose={()=>setDemoExercise(null)}/>}
+    {demoExercise&&<ExerciseDemo exercise={demoExercise} onClose={()=>setDemoExercise(null)}/>}{showSessionDirectory&&<SessionMovementDirectory onClose={()=>setShowSessionDirectory(false)}/>}
   </div>;
 }
