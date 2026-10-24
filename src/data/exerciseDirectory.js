@@ -263,6 +263,11 @@ export const exerciseDirectory = [
   { id:"standing-cable-woodchop", name:"Standing Cable Wood Chop", muscles:["core"], pattern:"rotation", equipment:["cable"], tags:["core","rotation"] },
   { id:"suitcase-carry", name:"Dumbbell Suitcase Carry", muscles:["core"], pattern:"anti-lateral-flexion", equipment:["dumbbells"], tags:["core","carry"] },
 
+  { id:"dumbbell-box-squat", name:"Dumbbell Box Squat", muscles:["quads","glutes"], pattern:"squat", equipment:["dumbbells","bench"], tags:["compound","squat","box-squat"] },
+  { id:"tempo-goblet-squat", name:"Tempo Goblet Squat", muscles:["quads","glutes"], pattern:"squat", equipment:["dumbbells"], tags:["compound","tempo","quad-focus"] },
+  { id:"back-extension-45", name:"45-Degree Back Extension", muscles:["hamstrings","glutes"], pattern:"hip-extension", equipment:["back-extension-bench"], tags:["compound","posterior-chain"] },
+  { id:"conventional-deadlift", name:"Conventional Deadlift", muscles:["hamstrings","glutes"], pattern:"hinge", equipment:["barbell"], tags:["compound","hinge","posterior-chain"] },
+  { id:"b-stance-dumbbell-rdl", name:"B-Stance Dumbbell Romanian Deadlift", muscles:["hamstrings","glutes"], pattern:"hinge-unilateral", equipment:["dumbbells"], tags:["compound","unilateral","hinge"] },
 ];
 
 export const exerciseDirectoryByMuscle = exerciseDirectory.reduce((groups, exercise) => {
