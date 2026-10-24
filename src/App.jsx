@@ -155,15 +155,15 @@ function SessionCooldown({ focus, goal }) {
   </>;
 }
 
-function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle }) {
+function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle, onNoEquipment, weight, onWeightChange }) {
   return <article className={`exercise-card ${completed ? "is-complete" : ""}`}>
-    <div className="exercise-number">{String(index + 1).padStart(2,"0")}</div>
-    <div className="exercise-main">
+    <div className="exercise-number">{String(index + 1).padStart(2,"0")}</div><div className="exercise-main">
       <div className="exercise-heading"><div><h3>{exercise.name}</h3><p>{exercise.muscles.join(" · ")}</p></div><div className="exercise-actions"><button className="icon-button shuffle-exercise-button" onClick={()=>onShuffle(exercise)} aria-label={`Try another ${exercise.name} exercise`} title="Try another exercise"><Shuffle size={16}/></button><button className="icon-button play-demo-button" onClick={()=>onPlay(exercise)} aria-label={`Watch ${exercise.name} demonstration`} title="Watch demonstration"><Play size={16} fill="currentColor"/></button></div></div>
       <div className="exercise-meta"><span>{exercise.sets} sets</span><span>{exercise.reps}</span><span>{exercise.rest} rest</span></div>
-      <button className={`complete-button ${completed ? "done" : ""}`} onClick={onToggle}>{completed && <Check size={17}/>} {completed ? "Completed" : "Mark complete"}</button>
-    </div>
-  </article>;
+      <div className="exercise-load-row"><label>Working weight (kg)<input type="number" min="0" step="0.5" value={weight ?? ""} placeholder="Enter load" onChange={event=>onWeightChange(event.target.value)} aria-label={`Working weight for ${exercise.name} in kilograms`}/></label><span className="load-hint">{weight ? "Saved for future sessions; use for each working set." : "First session? Start light and finish with 2–3 good reps still possible."}</span></div>
+      <div className="exercise-set-loads" aria-label="Set-by-set weight plan">{Array.from({length:exercise.sets || 3},(_,setIndex)=><span key={setIndex}><b>Set {setIndex+1}</b>{weight ? `${weight} kg` : "Choose load"} · {exercise.reps} reps</span>)}</div>
+      <div className="exercise-card-footer"><button className="equipment-feedback-button" onClick={()=>onNoEquipment(exercise)}><Dumbbell size={14}/> I don’t have this equipment</button><button className={`complete-button ${completed ? "done" : ""}`} onClick={onToggle}>{completed && <Check size={17}/>} {completed ? "Completed" : "Mark complete"}</button></div>
+    </div></article>;
 }
 
 function ExerciseDemo({ exercise, onClose }) {
@@ -265,25 +265,25 @@ function WorkoutCustomizer({ focus, count, savedCustomization, onApply, onClose 
   </section></div>;
 }
 function Setup({ profile, onSave, onClose }) {
-  const [goal,setGoal]=useState(profile.goal), [days,setDays]=useState(profile.trainingDays), [length,setLength]=useState(profile.sessionLength);
+  const [goal,setGoal]=useState(profile.goal), [days,setDays]=useState(profile.trainingDays), [length,setLength]=useState(profile.sessionLength), [level,setLevel]=useState(profile.trainingLevel || "beginner");
   return <div className="setup-overlay"><section className="setup-card">
     <div className="setup-top"><div className="setup-brand"><span className="brand-mark">G</span><strong>gymbro</strong></div><button className="setup-close" onClick={onClose} aria-label="Close setup"><X size={18}/></button></div>
     <span className="section-label">LET'S SET YOU UP</span><h1>Your workouts should fit <em>you.</em></h1>
     <p className="setup-intro">Gymbro uses these basics to decide what you should train and how much work to give you.</p>
     <label>Primary goal</label><div className="choice-grid">{[["fat-loss","Fat loss"],["strength","Get stronger"],["fitness","General fitness"]].map(([v,l])=><button key={v} className={goal===v?"choice selected":"choice"} onClick={()=>setGoal(v)}>{l}</button>)}</div>
     <label>Training days / week</label><div className="segmented">{[3,4,5].map(v=><button key={v} className={days===v?"selected":""} onClick={()=>setDays(v)}>{v}</button>)}</div>
-    <label>Typical session</label><div className="segmented">{[30,45,50,60].map(v=><button key={v} className={length===v?"selected":""} onClick={()=>setLength(v)}>{v} min</button>)}</div>
-    <button className="primary-button" onClick={()=>onSave({...profile,goal,trainingDays:days,sessionLength:length})}>Build my Gymbro <ChevronRight size={17}/></button><button className="setup-skip" onClick={onClose}>Skip for now</button>
+    <label>Training experience</label><div className="level-choice-grid">{[["beginner","Beginner","New to structured training, returning after a break, or still learning technique. Often the first 0–6 months."],["intermediate","Intermediate","Usually 6–24 months of consistent training, with reliable technique and experience adjusting loads."],["advanced","Advanced","Often 2+ years of consistent, structured training with strong technique and experience managing recovery."]].map(([value,title,description])=><button type="button" key={value} className={level===value?"level-choice selected":"level-choice"} onClick={()=>setLevel(value)}><strong>{title}</strong><span>{description}</span></button>)}</div><p className="profile-note">These are guidelines, not strict cut-offs. Choose the level that matches your technique and consistency.</p><label>Typical session</label><div className="segmented">{[30,45,50,60].map(v=><button key={v} className={length===v?"selected":""} onClick={()=>setLength(v)}>{v} min</button>)}</div>
+    <button className="primary-button" onClick={()=>onSave({...profile,goal,trainingDays:days,sessionLength:length,trainingLevel:level})}>Build my Gymbro <ChevronRight size={17}/></button><button className="setup-skip" onClick={onClose}>Skip for now</button>
   </section></div>;
 }
 
 function ProfilePanel({ profile, onClose, onSave }) {
-  const [goal,setGoal]=useState(profile.goal), [days,setDays]=useState(profile.trainingDays), [length,setLength]=useState(profile.sessionLength);
+  const [goal,setGoal]=useState(profile.goal), [days,setDays]=useState(profile.trainingDays), [length,setLength]=useState(profile.sessionLength), [level,setLevel]=useState(profile.trainingLevel || "beginner"), [unavailable,setUnavailable]=useState(profile.unavailableEquipment || []);
   return <div className="panel-overlay" onClick={onClose}><aside className="profile-panel" onClick={e=>e.stopPropagation()}>
     <div className="panel-head"><div><span className="section-label">PROFILE</span><h2>Your setup</h2></div><button className="icon-button" onClick={onClose}><X size={17}/></button></div>
     <label>Workout goal</label><div className="choice-grid profile-goals">{[["fat-loss","Fat loss"],["strength","Get stronger"],["fitness","General fitness"]].map(([v,l])=><button key={v} className={goal===v?"choice selected":"choice"} onClick={()=>setGoal(v)}>{l}</button>)}</div><label>Training days</label><div className="segmented">{[3,4,5].map(v=><button key={v} className={days===v?"selected":""} onClick={()=>setDays(v)}>{v}</button>)}</div>
-    <label>Session length</label><div className="segmented">{[30,45,50,60].map(v=><button key={v} className={length===v?"selected":""} onClick={()=>setLength(v)}>{v}m</button>)}</div>
-    <button className="primary-button" onClick={()=>onSave({...profile,goal,trainingDays:days,sessionLength:length})}>Save changes</button>
+    <label>Training level</label><div className="level-choice-grid profile-levels">{[["beginner","Beginner","New or returning to structured training; prioritise technique."],["intermediate","Intermediate","Consistent training and reliable technique; can adjust working loads."],["advanced","Advanced","Years of structured training and confident programming/recovery."]].map(([value,title,description])=><button type="button" key={value} className={level===value?"level-choice selected":"level-choice"} onClick={()=>setLevel(value)}><strong>{title}</strong><span>{description}</span></button>)}</div><label>Unavailable equipment</label><p className="profile-note">Gymbro will avoid exercises requiring equipment you mark as unavailable.</p><div className="unavailable-equipment-list">{[["cable","Cable machine"],["machine","Weight machines"],["barbell","Barbell"],["dumbbells","Dumbbells"],["bench","Bench"],["leg-extension","Leg extension machine"],["leg-curl","Leg curl machine"]].map(([value,label])=><label key={value} className="equipment-toggle"><input type="checkbox" checked={unavailable.includes(value)} onChange={event=>setUnavailable(current=>event.target.checked?[...new Set([...current,value])]:current.filter(item=>item!==value))}/>{label}</label>)}</div><label>Session length</label><div className="segmented">{[30,45,50,60].map(v=><button key={v} className={length===v?"selected":""} onClick={()=>setLength(v)}>{v}m</button>)}</div>
+    <button className="primary-button" onClick={()=>onSave({...profile,goal,trainingDays:days,sessionLength:length,trainingLevel:level,unavailableEquipment:unavailable})}>Save changes</button>
   </aside></div>;
 }
 
@@ -360,7 +360,7 @@ export default function App() {
       activeDate,
     }));
   }, [state, todayPlan, completed, activeDate]);
-  const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
+  const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
   const workout=todayPlan || defaultWorkout;
   const progress=Math.round((completed.length/workout.exercises.length)*100);
   const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
@@ -376,7 +376,7 @@ export default function App() {
   const currentIds = workout.exercises.map(item => item.id);
   const alternatives = generateWorkout({
     library:exerciseLibrary,
-    equipment:state.profile.equipment,
+    equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],
     trainingDays:state.profile.trainingDays,
     history:state.history,
     // Replace the movement within its own primary muscle group. A shuffle
@@ -413,7 +413,7 @@ export default function App() {
   };
   const shuffled = generateWorkout({
     library:exerciseLibrary,
-    equipment:state.profile.equipment,
+    equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],
     trainingDays:state.profile.trainingDays,
     history:state.history,
     focusOverride:focus,
@@ -431,7 +431,7 @@ export default function App() {
   }
 };
   const applyCustomization=(muscles,count,constraints)=>{
-  const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});
+  const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});
   setTodayPlan(custom);
   setState(c=>({...c,todayPlan:custom,todayCustomization:{muscles,timeAvailable:constraints.timeAvailable,energy:constraints.energy,intensity:constraints.intensity,equipmentModes:constraints.equipmentModes}}));
   setCompleted([]);
@@ -459,6 +459,7 @@ export default function App() {
     const nextWorkout = generateWorkout({
       library: exerciseLibrary,
       equipment: state.profile.equipment,
+      unavailableEquipment: state.profile.unavailableEquipment || [],
       trainingDays: state.profile.trainingDays,
       history: nextHistory,
       sessionLength: state.profile.sessionLength,
@@ -488,7 +489,23 @@ export default function App() {
     if (!completed.length) return;
     logToday("completed");
   };
-  const saveProfile=profile=>{setState(c=>({...c,profile}));setShowProfile(false);};
+  const saveProfile=profile=>{setState(c=>({...c,profile:{...c.profile,...profile}}));setShowProfile(false);};
+  const reportMissingEquipment = exercise => {
+    const choices=(exercise.equipment || []).filter(item=>item!=="bodyweight");
+    if(!choices.length){window.alert("This is a bodyweight movement, so no equipment exclusion is needed.");return;}
+    const labels={cable:"Cable machine",machine:"Weight machine",barbell:"Barbell",dumbbells:"Dumbbells",bench:"Bench","leg-extension":"Leg extension machine","leg-curl":"Leg curl machine"};
+    const answer=choices.length>1?window.prompt(`Which equipment are you missing? Enter one: ${choices.map(item=>labels[item]||item).join(", ")}`,choices[0]):choices[0];
+    if(!answer)return;
+    const missing=choices.find(item=>item===answer.trim().toLowerCase()||labels[item]?.toLowerCase()===answer.trim().toLowerCase());
+    if(!missing){window.alert("Please enter one of the equipment options shown.");return;}
+    const nextUnavailable=[...new Set([...(state.profile.unavailableEquipment||[]),missing])];
+    const updatedProfile={...state.profile,unavailableEquipment:nextUnavailable};
+    const focus=state.todayCustomization?.muscles?.length?state.todayCustomization.muscles:workout.focus.map(x=>x.toLowerCase());
+    const nextPlan=generateWorkout({library:exerciseLibrary,equipment:updatedProfile.equipment,unavailableEquipment:nextUnavailable,trainingDays:updatedProfile.trainingDays,history:state.history,focusOverride:focus,exerciseCount:workout.exercises.length,constraints:state.todayCustomization||{},excludeIds:workout.exercises.filter(item=>item.id!==exercise.id).map(item=>item.id)});
+    setState(c=>({...c,profile:updatedProfile,todayPlan:nextPlan}));setTodayPlan(nextPlan);setCompleted(c=>c.filter(id=>id!==exercise.id));
+    window.alert(`Saved. Gymbro will avoid ${labels[missing]||missing} in future workouts.`);
+  };
+  const updateExerciseWeight=(exerciseId,value)=>setState(c=>({...c,profile:{...c.profile,exerciseLoads:{...(c.profile.exerciseLoads||{}),[exerciseId]:value}}}));
   return <div className="app-shell">
     <header className="topbar"><a className="brand" href="#today"><span className="brand-mark">G</span><span>gymbro</span></a><nav><a className="active" href="#today">Today</a><a href="#history">History</a><a href="#library" onClick={e=>{e.preventDefault();setShowSessionDirectory(true)}}>Warm-up & cooldown</a><a href="#profile" onClick={e=>{e.preventDefault();setShowProfile(true)}}>Profile</a></nav><button className="profile-button" onClick={()=>setShowProfile(true)}>N</button></header>
     <main>
@@ -499,7 +516,7 @@ export default function App() {
         <button className="primary-button stage-action" onClick={()=>{setSessionStage("workout");localStorage.setItem("gymbro-session-stage","workout");}}>Mark warm-up as completed <Check size={16}/></button>
       </section>}
       {(sessionStage === "workout" || sessionStage === "cooldown") && <>
-        <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise}/>)}</section>
+        <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise} onNoEquipment={reportMissingEquipment} weight={state.profile.exerciseLoads?.[exercise.id] ?? ""} onWeightChange={value=>updateExerciseWeight(exercise.id,value)}/>)}</section>
         <div className="list-actions"><button className="secondary-button" onClick={()=>setShowAll(!showAll)}>{showAll?"Show less":"See full workout"} <ChevronRight size={17}/></button>{completed.length>0&&<button className="quiet-button" onClick={()=>setCompleted([])}><RotateCcw size={15}/> Reset</button>}
         <button className="primary-button compact finish-workout-button" onClick={finishForToday} disabled={!completed.length}>Finish my workout <Check size={16}/></button></div>
         <section className="next-card"><div className="next-icon"><Flame size={21}/></div><div><span className="section-label">THE ENGINE</span><h3>Your next workout changes based on what you actually do.</h3><p>Gymbro rotates movement patterns and avoids recently completed exercises when it builds your next session.</p></div><Settings2 className="next-arrow" size={20}/></section>
