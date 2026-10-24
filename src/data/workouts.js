@@ -57,4 +57,7 @@ export const defaultProfile = {
   trainingDays:4,
   sessionLength:50,
   equipment:["dumbbells","barbell","bench","cable","machine","leg-extension","bodyweight"],
+  trainingLevel:"beginner",
+  unavailableEquipment:[],
+  exerciseLoads:{},
 };
