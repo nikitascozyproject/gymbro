@@ -287,8 +287,68 @@ function ProfilePanel({ profile, onClose, onSave }) {
   </aside></div>;
 }
 
+
+const SESSION_DIRECTORY_MUSCLES = ["glutes","quads","hamstrings","back","shoulders","chest","biceps","triceps","core"];
+
+function SessionMovementDirectory({ onClose }) {
+  const [kind, setKind] = useState("warmup");
+  const [query, setQuery] = useState("");
+  const [muscleFilter, setMuscleFilter] = useState("all");
+  const entries = useMemo(() => {
+    const unique = new Map();
+    SESSION_DIRECTORY_MUSCLES.forEach(muscle => {
+      const guide = getSessionGuide([muscle], "fitness");
+      const movements = kind === "warmup" ? guide.warmup.movements : guide.cooldown.movements;
+      movements.forEach(movement => {
+        const key = movement.name.toLowerCase();
+        if (!unique.has(key)) unique.set(key, { ...movement, muscles: [] });
+        const item = unique.get(key);
+        if (!item.muscles.includes(muscle)) item.muscles.push(muscle);
+      });
+    });
+    return [...unique.values()].sort((a,b) => a.name.localeCompare(b.name));
+  }, [kind]);
+  const filtered = entries.filter(item => {
+    const matchesQuery = (item.name + " " + item.detail + " " + (item.instruction || "") + " " + item.muscles.join(" ")).toLowerCase().includes(query.toLowerCase());
+    return matchesQuery && (muscleFilter === "all" || item.muscles.includes(muscleFilter));
+  });
+  const searchUrl = item => item.url || `https://www.youtube.com/results?search_query=${encodeURIComponent(item.name + (kind === "warmup" ? " warm up mobility exercise demonstration" : " stretch cooldown demonstration"))}`;
+
+  return <div className="session-directory-overlay" onClick={onClose}>
+    <section className="session-directory" onClick={e=>e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Warm-up and cooldown directory">
+      <div className="session-directory-head">
+        <div><span className="section-label">MOVEMENT LIBRARY</span><h2>Prepare. Train. Recover.</h2><p>Find a movement by name or the muscles it supports.</p></div>
+        <button className="icon-button" onClick={onClose} aria-label="Close directory"><X size={18}/></button>
+      </div>
+      <div className="session-directory-tabs">
+        <button className={kind === "warmup" ? "selected" : ""} onClick={()=>{setKind("warmup");setMuscleFilter("all");}}>Warm-up <span>Prepare to train</span></button>
+        <button className={kind === "cooldown" ? "selected" : ""} onClick={()=>{setKind("cooldown");setMuscleFilter("all");}}>Cooldown <span>Stretch and recover</span></button>
+      </div>
+      <div className="session-directory-controls">
+        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={`Search ${kind === "warmup" ? "warm-up movements" : "stretches"}…`} aria-label="Search movement directory"/>
+        <select value={muscleFilter} onChange={e=>setMuscleFilter(e.target.value)} aria-label="Filter by muscle group">
+          <option value="all">All muscle groups</option>
+          {SESSION_DIRECTORY_MUSCLES.map(muscle=><option key={muscle} value={muscle}>{MUSCLE_LABELS[muscle]}</option>)}
+        </select>
+      </div>
+      <div className="session-directory-count">{filtered.length} {kind === "warmup" ? "warm-up movements" : "cooldown movements"}</div>
+      <div className="session-directory-grid">
+        {filtered.map(item=><article className="session-directory-item" key={item.name}>
+          <div className="session-directory-item-top"><span className="directory-index">{String(filtered.indexOf(item)+1).padStart(2,"0")}</span><span className="directory-type">{kind === "warmup" ? "PREPARE" : "RECOVER"}</span></div>
+          <h3>{item.name}</h3><p className="directory-detail">{item.detail}</p>
+          {item.instruction && <p className="directory-instruction">{item.instruction}</p>}
+          <div className="directory-muscles">{item.muscles.map(muscle=><span key={muscle}>{MUSCLE_LABELS[muscle]}</span>)}</div>
+          <a className="directory-demo-link" href={searchUrl(item)} target="_blank" rel="noreferrer">Watch a demonstration <ChevronRight size={14}/></a>
+        </article>)}
+        {!filtered.length && <div className="session-directory-empty">No movements match that search. Try another name or choose “All muscle groups”.</div>}
+      </div>
+      <p className="session-directory-note">Keep warm-ups easy and dynamic. Cooldown stretches should feel gentle, never painful.</p>
+    </section>
+  </div>;
+}
+
 export default function App() {
-  const [state,setState]=useState(loadState), [completed,setCompleted]=useState(()=>loadState().completed || []), [showAll,setShowAll]=useState(false), [showProfile,setShowProfile]=useState(false), [showCustomizer,setShowCustomizer]=useState(false), [demoExercise,setDemoExercise]=useState(null), [postWorkoutFocus,setPostWorkoutFocus]=useState(()=>{try{return JSON.parse(localStorage.getItem("gymbro-post-workout-focus")||"null")}catch{return null}}), [sessionStage,setSessionStage]=useState(()=>localStorage.getItem("gymbro-session-stage") || "warmup");
+  const [state,setState]=useState(loadState), [completed,setCompleted]=useState(()=>loadState().completed || []), [showAll,setShowAll]=useState(false), [showProfile,setShowProfile]=useState(false), [showCustomizer,setShowCustomizer]=useState(false), [showSessionDirectory,setShowSessionDirectory]=useState(false), [demoExercise,setDemoExercise]=useState(null), [postWorkoutFocus,setPostWorkoutFocus]=useState(()=>{try{return JSON.parse(localStorage.getItem("gymbro-post-workout-focus")||"null")}catch{return null}}), [sessionStage,setSessionStage]=useState(()=>localStorage.getItem("gymbro-session-stage") || "warmup");
   const [todayPlan,setTodayPlan]=useState(()=>loadState().todayPlan || null);
   const [showSetup,setShowSetup]=useState(()=>!localStorage.getItem(ONBOARDED_KEY));
   const activeDate = state.activeDate || getDateKey();
@@ -430,7 +490,7 @@ export default function App() {
   };
   const saveProfile=profile=>{setState(c=>({...c,profile}));setShowProfile(false);};
   return <div className="app-shell">
-    <header className="topbar"><a className="brand" href="#today"><span className="brand-mark">G</span><span>gymbro</span></a><nav><a className="active" href="#today">Today</a><a href="#history">History</a><a href="#profile" onClick={e=>{e.preventDefault();setShowProfile(true)}}>Profile</a></nav><button className="profile-button" onClick={()=>setShowProfile(true)}>N</button></header>
+    <header className="topbar"><a className="brand" href="#today"><span className="brand-mark">G</span><span>gymbro</span></a><nav><a className="active" href="#today">Today</a><a href="#history">History</a><a href="#library" onClick={e=>{e.preventDefault();setShowSessionDirectory(true)}}>Warm-up & cooldown</a><a href="#profile" onClick={e=>{e.preventDefault();setShowProfile(true)}}>Profile</a></nav><button className="profile-button" onClick={()=>setShowProfile(true)}>N</button></header>
     <main>
       <section className="hero" id="today"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> YOUR DAILY WORKOUT</div><h1>{status}.</h1><p>One focused session. No overthinking. Just show up and move.</p></div><div className="progress-ring" style={{"--progress":`${progress*3.6}deg`}}><strong>{progress}%</strong><span>done</span></div></section>
       <section className="workout-overview"><div><span className="section-label">TODAY · {new Date().toLocaleDateString("en-IN",{weekday:"long",month:"short",day:"numeric"}).toUpperCase()}</span><h2>{workout.title}</h2><p>{workout.subtitle}</p></div><div className="overview-right"><div className="overview-stats"><span><Clock3 size={16}/> {workout.duration}</span><span><Dumbbell size={16}/> {workout.exercises.length} exercises</span><span><Target size={16}/> {workout.focus.join(" · ")}</span></div><button className="customize-button shuffle-workout-button" onClick={shuffleWorkout} title="Shuffle the entire workout"><Shuffle size={15}/> Shuffle workout</button><button className="customize-button" onClick={()=>setShowCustomizer(true)}><SlidersHorizontal size={15}/> Change today’s workout</button></div></section>
