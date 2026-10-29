@@ -26,6 +26,22 @@ function getDateKey(date = new Date()) {
   return `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, "0")}-${String(local.getDate()).padStart(2, "0")}`;
 }
 
+// Migrate older saved profiles by filling in new defaults without overwriting
+// the user's existing choices. Validate collections before the UI uses them.
+function normalizeProfile(profile) {
+  const saved = profile && typeof profile === "object" && !Array.isArray(profile) ? profile : {};
+  return {
+    ...defaultProfile,
+    ...saved,
+    equipment: Array.isArray(saved.equipment) ? saved.equipment : [...defaultProfile.equipment],
+    unavailableEquipment: Array.isArray(saved.unavailableEquipment) ? saved.unavailableEquipment : [],
+    unavailableExerciseIds: Array.isArray(saved.unavailableExerciseIds) ? saved.unavailableExerciseIds : [],
+    exerciseLoads: saved.exerciseLoads && typeof saved.exerciseLoads === "object" && !Array.isArray(saved.exerciseLoads)
+      ? saved.exerciseLoads
+      : {},
+  };
+}
+
 function loadState() {
   const empty = {
     profile: defaultProfile,
@@ -51,7 +67,7 @@ function loadState() {
     if (!hasDateState && saved.todayPlan) {
       return {
         ...empty,
-        profile: saved.profile || defaultProfile,
+        profile: normalizeProfile(saved.profile),
         history,
         activeDate: today,
         dayClosed: false,
@@ -78,7 +94,7 @@ function loadState() {
       }
       return {
         ...empty,
-        profile: saved.profile || defaultProfile,
+        profile: normalizeProfile(saved.profile),
         history,
         activeDate: today,
       };
