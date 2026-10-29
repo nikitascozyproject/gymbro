@@ -19,16 +19,6 @@ const featuredExerciseLibrary = [
   { id:"bird-dog",name:"Bird Dog",muscles:["core"],pattern:"core",equipment:["bodyweight"],sets:3,reps:"8–10 / side",rest:"45 sec",demo:{youtubeId:"40a4wZrnCFs"} },
   { id:"plank",name:"Forearm Plank",muscles:["core"],pattern:"core",equipment:["bodyweight"],sets:3,reps:"30–45 sec",rest:"45 sec",demo:{youtubeId:"-1f7iZobFyM"} },
 ];
-// VERIFIED ANDREW KWONG (DeltaBolic) SHORTS.
-// IDs were cross-checked against indexed video pages and their titles.
-// Only assign a link where the demonstrated movement matches the catalogue entry.
-const andrewKwongTutorials = {
-  "Seated Cable Row": { youtubeId: "qD1WZ5pSuvk", title: "Cable Row Form Tips (DO THIS!)" },
-  "Barbell Bench Press": { youtubeId: "_FkbD0FhgVE", title: "Perfect Bench Press Form (DO THIS!)" },
-  "Push-Up": { youtubeId: "yQEx9OC2C3E", title: "Push-Up Mistake (SAVE YOUR SHOULDERS!)" },
-  "Leg Press": { youtubeId: "BnacvXdaxq8", title: "Leg Press Variations (KNOW THE DIFFERENCE!)" },
-};
-
 import { exerciseDirectory } from "./exerciseDirectory";
 
 const defaultPrescription = {
@@ -39,15 +29,12 @@ const defaultPrescription = {
 
 export const exerciseLibrary = exerciseDirectory.map((exercise) => {
   const featured = featuredExerciseLibrary.find((item) => item.name === exercise.name);
-  const andrewTutorial = andrewKwongTutorials[exercise.name];
   return {
     ...exercise,
     sets: featured?.sets ?? defaultPrescription.sets,
     reps: featured?.reps ?? defaultPrescription.reps,
     rest: featured?.rest ?? defaultPrescription.rest,
-    ...(andrewTutorial
-      ? { demo: { youtubeId: andrewTutorial.youtubeId, source: "Andrew Kwong (DeltaBolic)", title: andrewTutorial.title } }
-      : featured?.demo ? { demo: featured.demo } : {}),
+    ...(featured?.demo ? { demo: featured.demo } : {}),
   };
 });
 
