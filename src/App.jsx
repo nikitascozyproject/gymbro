@@ -400,7 +400,7 @@ export default function App() {
     id:`${workout.id}-exercise-shuffle-${Date.now()}`,
     exercises:workout.exercises.map(item => item === exercise ? replacement : item),
   };
-  const nextHistory = {...shuffleHistory,[muscle]:[...recentAlternatives, replacement.id].slice(-10)};
+  const nextHistory = {...shuffleHistory,[muscle]:[...recentAlternatives, exercise.id, replacement.id].filter((id,index,items)=>items.indexOf(id)===index).slice(-10)};
   setTodayPlan(nextPlan);
   setState(c=>({...c,todayPlan:nextPlan,shuffleHistory:nextHistory}));
   setCompleted(c=>c.filter(id=>id!==exercise.id));
