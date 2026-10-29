@@ -160,8 +160,6 @@ function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle,
     <div className="exercise-number">{String(index + 1).padStart(2,"0")}</div><div className="exercise-main">
       <div className="exercise-heading"><div><h3>{exercise.name}</h3><p>{exercise.muscles.join(" · ")}</p></div><div className="exercise-actions"><button className="icon-button shuffle-exercise-button" onClick={()=>onShuffle(exercise)} aria-label={`Try another ${exercise.name} exercise`} title="Try another exercise"><Shuffle size={16}/></button><button className="icon-button play-demo-button" onClick={()=>onPlay(exercise)} aria-label={`Watch ${exercise.name} demonstration`} title="Watch demonstration"><Play size={16} fill="currentColor"/></button></div></div>
       <div className="exercise-meta"><span>{exercise.sets} sets</span><span>{exercise.reps}</span><span>{exercise.rest} rest</span></div>
-      <div className="exercise-load-row"><label>Working weight (kg)<input type="number" min="0" step="0.5" value={weight ?? ""} placeholder="Enter load" onChange={event=>onWeightChange(event.target.value)} aria-label={`Working weight for ${exercise.name} in kilograms`}/></label><span className="load-hint">{weight ? "Saved for future sessions; use for each working set." : "First session? Start light and finish with 2–3 good reps still possible."}</span></div>
-      <div className="exercise-set-loads" aria-label="Set-by-set weight plan">{Array.from({length:exercise.sets || 3},(_,setIndex)=><span key={setIndex}><b>Set {setIndex+1}</b>{weight ? `${weight} kg` : "Choose load"} · {exercise.reps} reps</span>)}</div>
       <div className="exercise-card-footer"><button className="equipment-feedback-button" onClick={()=>onNoEquipment(exercise)}><Dumbbell size={14}/> I don’t have this equipment</button><button className={`complete-button ${completed ? "done" : ""}`} onClick={onToggle}>{completed && <Check size={17}/>} {completed ? "Completed" : "Mark complete"}</button></div>
     </div></article>;
 }
@@ -200,8 +198,8 @@ function ExerciseDemo({ exercise, onClose }) {
           <div className="demo-fallback-icon"><Play size={22} fill="currentColor"/></div>
           <strong>Find a form tutorial</strong>
           <p>This movement does not have a hand-picked video yet. Open a pre-filled search for form tutorials, compare demonstrations, and choose one that clearly shows the full movement.</p>
-          <a href={andrewShortsUrl} target="_blank" rel="noreferrer" className="primary-button">Find Andrew Kwong’s Short <ChevronRight size={16}/></a>
-          <a href={youtubeUrl} target="_blank" rel="noreferrer" className="demo-youtube-link">Search all form tutorials <ChevronRight size={14}/></a>
+          <a href={youtubeUrl} target="_blank" rel="noreferrer" className="primary-button">Find a demonstration on YouTube <ChevronRight size={16}/></a>
+          <p className="demo-verification-note">A specific video hasn’t been verified for this exercise yet, so Gymbro won’t pretend this is a hand-picked demo.</p>
         </div>
       )}
 
@@ -516,6 +514,10 @@ export default function App() {
         <button className="primary-button stage-action" onClick={()=>{setSessionStage("workout");localStorage.setItem("gymbro-session-stage","workout");}}>Mark warm-up as completed <Check size={16}/></button>
       </section>}
       {(sessionStage === "workout" || sessionStage === "cooldown") && <>
+        <section className="workout-section-heading" aria-label="Workout section">
+          <div><span className="section-label">02 · STRENGTH SESSION</span><h2>Your workout</h2><p>Move through the exercises at your pace. Mark each one complete as you go.</p></div>
+          <span className="workout-section-count">{workout.exercises.length} movements</span>
+        </section>
         <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise} onNoEquipment={reportMissingEquipment} weight={state.profile.exerciseLoads?.[exercise.id] ?? ""} onWeightChange={value=>updateExerciseWeight(exercise.id,value)}/>)}</section>
         <div className="list-actions"><button className="secondary-button" onClick={()=>setShowAll(!showAll)}>{showAll?"Show less":"See full workout"} <ChevronRight size={17}/></button>{completed.length>0&&<button className="quiet-button" onClick={()=>setCompleted([])}><RotateCcw size={15}/> Reset</button>}
         <button className="primary-button compact finish-workout-button" onClick={finishForToday} disabled={!completed.length}>Finish my workout <Check size={16}/></button></div>
