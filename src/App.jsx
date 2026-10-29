@@ -96,8 +96,8 @@ function loadState() {
   }
 }
 
-function SessionGuide({ focus, goal }) {
-  const { warmup } = getSessionGuide(focus, goal);
+function SessionGuide({ focus, goal, variationKey }) {
+  const { warmup } = getSessionGuide(focus, goal, variationKey);
 
   return <section className="session-guide warmup-guide">
       <div className="session-guide-head">
@@ -512,7 +512,7 @@ export default function App() {
       <section className="hero" id="today"><div className="hero-copy"><div className="eyebrow"><Sparkles size={14}/> YOUR DAILY WORKOUT</div><h1>{status}.</h1><p>One focused session. No overthinking. Just show up and move.</p></div><div className="progress-ring" style={{"--progress":`${progress*3.6}deg`}}><strong>{progress}%</strong><span>done</span></div></section>
       <section className="workout-overview"><div><span className="section-label">TODAY · {new Date().toLocaleDateString("en-IN",{weekday:"long",month:"short",day:"numeric"}).toUpperCase()}</span><h2>{workout.title}</h2><p>{workout.subtitle}</p></div><div className="overview-right"><div className="overview-stats"><span><Clock3 size={16}/> {workout.duration}</span><span><Dumbbell size={16}/> {workout.exercises.length} exercises</span><span><Target size={16}/> {workout.focus.join(" · ")}</span></div><button className="customize-button shuffle-workout-button" onClick={shuffleWorkout} title="Shuffle the entire workout"><Shuffle size={15}/> Shuffle workout</button><button className="customize-button" onClick={()=>setShowCustomizer(true)}><SlidersHorizontal size={15}/> Change today’s workout</button></div></section>
       {<section className="session-stage warmup-stage">
-        <SessionGuide focus={(state.todayCustomization?.muscles?.length ? state.todayCustomization.muscles : workout.focus).map(x => x.toLowerCase())} goal={state.profile.goal} />
+        <SessionGuide focus={(state.todayCustomization?.muscles?.length ? state.todayCustomization.muscles : workout.focus).map(x => x.toLowerCase())} goal={state.profile.goal} variationKey={workout.id} />
         <button className="primary-button stage-action" onClick={()=>{setSessionStage("workout");localStorage.setItem("gymbro-session-stage","workout");}}>Mark warm-up as completed <Check size={16}/></button>
       </section>}
       {(sessionStage === "workout" || sessionStage === "cooldown") && <>
