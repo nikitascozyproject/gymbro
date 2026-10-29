@@ -43,7 +43,7 @@ export const defaultProfile = {
   goal:"fat-loss",
   trainingDays:4,
   sessionLength:50,
-  equipment:["dumbbells","barbell","bench","cable","machine","leg-extension","bodyweight"],
+  equipment:["dumbbells","barbell","bench","cable","machine","leg-extension","leg-curl","bodyweight"],
   trainingLevel:"beginner",
   unavailableEquipment:[],
   exerciseLoads:{},
