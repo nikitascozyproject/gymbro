@@ -60,39 +60,60 @@ export function getSessionGuide(focus = [], goal = "fitness") {
     warmup.demo = { youtubeId: "o4GKiEoYClI", label: "Watch a core warm-up movement" };
   }
 
-  // Build the warm-up from every selected muscle group, including mixed sessions.
-  // Keep it brief: one easy cardio choice plus a few targeted movements.
+  // Build a genuinely targeted, dynamic warm-up from the selected muscles.
+  // Use movement prep rather than repeating the same generic arm circles/band work.
   const targetedWarmup = [
-    { name: "Easy cardio", detail: "5 min · treadmill or elliptical · easy pace", instruction: "Choose either machine and move at a pace where you can still talk comfortably." },
+    { name: "Easy cardio", detail: "3–5 min · treadmill or stationary cycle · easy pace", instruction: "Start gently and build until you feel warmer, while still being able to speak comfortably." },
   ];
-  const addTargeted = (movement) => {
+  const addTargeted = movement => {
     if (!targetedWarmup.some(item => item.name === movement.name)) targetedWarmup.push(movement);
   };
-  if (isLower) {
-    addTargeted({ name: "Leg swings", detail: "8 each side · controlled", instruction: "Hold a rack or wall. Swing one leg forward and back in a small, comfortable range while keeping your torso still." });
-  }
-  if (selected.has("quads")) {
-    addTargeted({ name: "Bodyweight squats", detail: "8 easy reps", instruction: "Stand about shoulder-width apart, sit your hips back, bend your knees, then stand tall. Use a comfortable depth." });
-  }
-  if (selected.has("glutes") || selected.has("hamstrings")) {
-    addTargeted({ name: "Glute bridges", detail: "10 easy reps", instruction: "Lie on your back with knees bent and feet flat. Lift your hips by squeezing your glutes, pause, then lower." });
-  }
-  if (isUpper) {
-    addTargeted({ name: "Arm circles", detail: "8 each direction", instruction: "Hold your arms out to the sides and make small, controlled circles. Reverse direction halfway through." });
-  }
-  if (selected.has("back") || selected.has("shoulders")) {
-    addTargeted({ name: "Band pull-aparts", detail: "10 reps · light band", instruction: "Hold a light band at chest height. Pull your hands apart, keeping shoulders relaxed, then return slowly." });
-  }
-  if (selected.has("chest")) {
-    addTargeted({ name: "Wall slides", detail: "8 slow reps", instruction: "Stand near a wall and slide your arms upward only as far as comfortable, then lower slowly." });
-  }
-  if (selected.has("biceps") || selected.has("triceps")) {
-    addTargeted({ name: "Elbow bends", detail: "10 easy reps", instruction: "Keep your upper arms near your sides. Slowly bend and straighten your elbows without weights." });
-  }
-  if (isCore) {
-    addTargeted({ name: "Bird dog", detail: "6 each side", instruction: "On hands and knees, reach one arm forward and the opposite leg back. Keep your hips level, return, and switch." });
-  }
-  // Avoid turning the warm-up into a second workout on broad multi-muscle days.
+  if (selected.has("glutes")) addTargeted({
+    name: "Glute bridge pulses", detail: "10 controlled reps",
+    instruction: "Lie on your back with knees bent. Drive through your feet, lift your hips, squeeze your glutes briefly, then lower with control."
+  });
+  if (selected.has("quads")) addTargeted({
+    name: "Squat-to-stand", detail: "6–8 smooth reps",
+    instruction: "Sit into a comfortable bodyweight squat, then stand tall and reach overhead. Use a pain-free depth; do not force your knees."
+  });
+  if (selected.has("hamstrings")) addTargeted({
+    name: "Hip-hinge reach", detail: "8 reps",
+    instruction: "Keep knees softly bent, push hips back and reach hands toward thighs or knees while keeping your back long, then stand tall."
+  });
+  if (selected.has("back")) addTargeted({
+    name: "Scapular retractions", detail: "10 reps · no weight",
+    instruction: "Stand tall with arms relaxed. Draw shoulder blades gently back and down without shrugging, pause for a second, then release."
+  });
+  if (selected.has("back")) addTargeted({
+    name: "Standing thoracic rotations", detail: "6 each side",
+    instruction: "Cross arms over your chest, keep hips facing forward, and rotate your upper back gently side to side without forcing the range."
+  });
+  if (selected.has("shoulders")) addTargeted({
+    name: "Arm circles", detail: "8 each direction",
+    instruction: "Make small controlled circles with arms out to the sides, gradually increase the size, then reverse. Keep it comfortable."
+  });
+  if (selected.has("shoulders")) addTargeted({
+    name: "Wall slides", detail: "8 smooth reps",
+    instruction: "Stand with your back near a wall and slide your arms upward only as far as comfortable, then return slowly."
+  });
+  if (selected.has("chest")) addTargeted({
+    name: "Wall push-ups", detail: "8–10 easy reps",
+    instruction: "Place hands on a wall around chest height. Bend elbows to bring your chest toward the wall, then push away smoothly; keep effort easy."
+  });
+  if (selected.has("biceps") || selected.has("triceps")) addTargeted({
+    name: "Elbow flex-and-extend", detail: "10 easy reps",
+    instruction: "Keep upper arms close to your sides and slowly bend, then straighten your elbows without weights or locking them forcefully."
+  });
+  if (selected.has("core")) addTargeted({
+    name: "Bird dog", detail: "6 each side",
+    instruction: "On hands and knees, reach one arm forward and the opposite leg back. Keep hips level, pause briefly, return and switch."
+  });
+  if (selected.has("core")) addTargeted({
+    name: "Standing brace and march", detail: "6 each side",
+    instruction: "Stand tall, gently brace your abdomen as if preparing for a cough, and slowly lift one knee without leaning back. Alternate sides."
+  });
+  // Show the cardio plus up to five focus-specific movements; mixed sessions
+  // prioritize coverage across selected muscle groups before adding extras.
   warmup.movements = targetedWarmup.slice(0, 6);
   warmup.demo = null;
 
