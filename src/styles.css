@@ -1164,3 +1164,63 @@ body { background: var(--gymbro-cream); color: var(--gymbro-ink); }
 @media (max-width: 360px) {
   .guide-movements { grid-template-columns: 1fr; }
 }
+
+
+/* Refined, premium neutral treatment for warm-up and workout hierarchy */
+:root {
+  --gymbro-cream: #f5f0e5;
+  --gymbro-paper: #fcf8ef;
+  --gymbro-ink: #191916;
+  --gymbro-sage: #d9ddcb;
+  --gymbro-blush: #e7cfd3;
+  --gymbro-butter: #e8dca8;
+}
+body { background: var(--gymbro-cream); color: var(--gymbro-ink); }
+.session-stage .session-guide { background: var(--gymbro-paper); border-color: #e1d9c9; }
+.guide-movements { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.guide-movement {
+  min-width:0; align-items:flex-start; padding:13px; gap:10px;
+  background:#f5f0e6 !important; border:1px solid #e5ddcf;
+  border-left:3px solid #c9c5b7; border-radius:13px;
+}
+.guide-movement:nth-child(3n + 1) { border-left-color:#9ca78a; }
+.guide-movement:nth-child(3n + 2) { border-left-color:#c9a0a8; }
+.guide-movement:nth-child(3n) { border-left-color:#cbb96f; }
+.guide-movement > span { background:#fffdf7; color:var(--gymbro-ink); }
+.warmup-quick-note { border-color:#e1d9c9; }
+.cooldown-guide { background:#f1ecdf !important; }
+.cooldown-guide .guide-movement { background:#fcf8ef !important; }
+.workout-section-heading {
+  display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+  margin:30px 0 4px; padding:22px 0 18px;
+  border-top:1px solid #c9c1b2; border-bottom:1px solid #ded6c8;
+}
+.workout-section-heading h2 {
+  margin:7px 0 5px; font-size:clamp(27px,5vw,36px);
+  letter-spacing:-.045em; line-height:1.05;
+}
+.workout-section-heading p { margin:0; color:#777267; font-size:13px; line-height:1.5; }
+.workout-section-count {
+  flex:0 0 auto; padding:8px 11px; border-radius:999px;
+  background:#e7e0d1; color:#555044; font-size:11px; font-weight:750;
+}
+.exercise-card { padding:25px 0; }
+.exercise-card.is-complete { opacity:.68; }
+.demo-fallback { background:#f2eee5; border:1px solid #e3dbcd; }
+.demo-fallback-icon { background:#191916; }
+.demo-verification-note {
+  max-width:380px; margin:12px 0 0; color:#777267;
+  font-size:11px; line-height:1.5;
+}
+@media (max-width:700px) {
+  .guide-movements { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .guide-movement { padding:11px; gap:8px; }
+  .workout-section-heading { align-items:flex-start; margin-top:24px; }
+  .workout-section-heading h2 { font-size:28px; }
+  .workout-section-heading p { max-width:260px; font-size:12px; }
+  .workout-section-count { margin-top:2px; font-size:10px; }
+}
+@media (max-width:360px) {
+  .guide-movements { grid-template-columns:1fr; }
+  .workout-section-heading { flex-direction:column; }
+}
