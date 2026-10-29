@@ -155,7 +155,7 @@ function SessionCooldown({ focus, goal }) {
   </>;
 }
 
-function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle, onNoEquipment, weight, onWeightChange }) {
+function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle, onNoEquipment, weight, onWeightChange, unavailableEquipment = [], unavailableExerciseIds = [] }) {
   return <article className={`exercise-card ${completed ? "is-complete" : ""}`}>
     <div className="exercise-number">{String(index + 1).padStart(2,"0")}</div><div className="exercise-main">
       <div className="exercise-heading"><div><h3>{exercise.name}</h3><p>{exercise.muscles.join(" · ")}</p></div><div className="exercise-actions"><button className="icon-button shuffle-exercise-button" onClick={()=>onShuffle(exercise)} aria-label={`Try another ${exercise.name} exercise`} title="Try another exercise"><Shuffle size={16}/></button><button className="icon-button play-demo-button" onClick={()=>onPlay(exercise)} aria-label={`Watch ${exercise.name} demonstration`} title="Watch demonstration"><Play size={16} fill="currentColor"/></button></div></div>
