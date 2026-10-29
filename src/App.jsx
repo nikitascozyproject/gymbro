@@ -160,7 +160,7 @@ function ExerciseCard({ exercise, index, completed, onToggle, onPlay, onShuffle,
     <div className="exercise-number">{String(index + 1).padStart(2,"0")}</div><div className="exercise-main">
       <div className="exercise-heading"><div><h3>{exercise.name}</h3><p>{exercise.muscles.join(" · ")}</p></div><div className="exercise-actions"><button className="icon-button shuffle-exercise-button" onClick={()=>onShuffle(exercise)} aria-label={`Try another ${exercise.name} exercise`} title="Try another exercise"><Shuffle size={16}/></button><button className="icon-button play-demo-button" onClick={()=>onPlay(exercise)} aria-label={`Watch ${exercise.name} demonstration`} title="Watch demonstration"><Play size={16} fill="currentColor"/></button></div></div>
       <div className="exercise-meta"><span>{exercise.sets} sets</span><span>{exercise.reps}</span><span>{exercise.rest} rest</span></div>
-      <div className="exercise-card-footer"><button className="equipment-feedback-button" onClick={()=>onNoEquipment(exercise)}><Dumbbell size={14}/> I don’t have this equipment</button><button className={`complete-button ${completed ? "done" : ""}`} onClick={onToggle}>{completed && <Check size={17}/>} {completed ? "Completed" : "Mark complete"}</button></div>
+      <div className="exercise-card-footer"><button className={`equipment-feedback-button ${exercise.equipment.some(item => (unavailableEquipment || []).includes(item)) || (unavailableExerciseIds || []).includes(exercise.id) ? "is-noted" : ""}`} onClick={()=>onNoEquipment(exercise)} aria-pressed={Boolean((unavailableExerciseIds || []).includes(exercise.id))}><Dumbbell size={14}/> {(unavailableExerciseIds || []).includes(exercise.id) ? "Equipment noted" : "I don’t have this equipment"}</button><button className={`complete-button ${completed ? "done" : ""}`} onClick={onToggle}>{completed && <Check size={17}/>} {completed ? "Completed" : "Mark complete"}</button></div>
     </div></article>;
 }
 
@@ -496,27 +496,27 @@ export default function App() {
   };
   const saveProfile=profile=>{setState(c=>({...c,profile:{...c.profile,...profile}}));setShowProfile(false);};
   const reportMissingEquipment = exercise => {
-    const choices=(exercise.equipment || []).filter(item=>item!=="bodyweight");
-    if(!choices.length){window.alert("This is a bodyweight movement, so no equipment exclusion is needed.");return;}
-    const labels={cable:"Cable machine",machine:"Weight machine",barbell:"Barbell",dumbbells:"Dumbbells",bench:"Bench","leg-extension":"Leg extension machine","leg-curl":"Leg curl machine"};
-    const answer=choices.length>1?window.prompt(`Which equipment are you missing? Enter one: ${choices.map(item=>labels[item]||item).join(", ")}`,choices[0]):choices[0];
-    if(!answer)return;
-    const missing=choices.find(item=>item===answer.trim().toLowerCase()||labels[item]?.toLowerCase()===answer.trim().toLowerCase());
-    if(!missing){window.alert("Please enter one of the equipment options shown.");return;}
-    const nextUnavailable=[...new Set([...(state.profile.unavailableEquipment||[]),missing])];
-    const updatedProfile={...state.profile,unavailableEquipment:nextUnavailable};
-    // Save the equipment preference for future sessions, but only replace the
-    // exercise the user flagged. Never regenerate the rest of today's workout.
+    const currentIds=workout.exercises.map(item=>item.id);
+    const unavailableExerciseIds=[...new Set([...(state.profile.unavailableExerciseIds||[]),exercise.id])];
+    const choices=(exercise.equipment||[]).filter(item=>item!=="bodyweight");
+    // If the movement uses a single piece of equipment, remember that equipment
+    // globally. If it requires several, remember this exact exercise without
+    // guessing which item the user lacks or showing a popup.
+    const unavailableEquipment=choices.length===1
+      ? [...new Set([...(state.profile.unavailableEquipment||[]),choices[0]])]
+      : [...(state.profile.unavailableEquipment||[])];
+    const updatedProfile={...state.profile,unavailableEquipment,unavailableExerciseIds};
     const alternatives=generateWorkout({
       library:exerciseLibrary,
       equipment:updatedProfile.equipment,
-      unavailableEquipment:nextUnavailable,
+      unavailableEquipment,
+      unavailableExerciseIds,
       trainingDays:updatedProfile.trainingDays,
       history:state.history,
-      focusOverride:[exercise.muscles?.[0] || workout.focus?.[0]?.toLowerCase() || "glutes"],
+      focusOverride:[exercise.muscles?.[0]||workout.focus?.[0]?.toLowerCase()||"glutes"],
       exerciseCount:1,
       constraints:state.todayCustomization||{},
-      excludeIds:workout.exercises.map(item=>item.id),
+      excludeIds:currentIds,
       shuffle:true,
       singleExerciseShuffle:true,
     });
@@ -527,9 +527,6 @@ export default function App() {
     setState(c=>({...c,profile:updatedProfile,todayPlan:nextPlan}));
     setTodayPlan(nextPlan);
     setCompleted(c=>replacement?c.filter(id=>id!==exercise.id):c);
-    window.alert(replacement
-      ? `Saved. This exercise has been replaced, and Gymbro will avoid ${labels[missing]||missing} in future workouts. The rest of today's workout is unchanged.`
-      : `Saved. Gymbro will avoid ${labels[missing]||missing} in future workouts, but couldn't find a suitable replacement for this exercise right now. The rest of today's workout is unchanged.`);
   };
   const updateExerciseWeight=(exerciseId,value)=>setState(c=>({...c,profile:{...c.profile,exerciseLoads:{...(c.profile.exerciseLoads||{}),[exerciseId]:value}}}));
   return <div className="app-shell">
@@ -546,7 +543,7 @@ export default function App() {
           <div><span className="section-label">02 · STRENGTH SESSION</span><h2>Your workout</h2><p>Move through the exercises at your pace. Mark each one complete as you go.</p></div>
           <span className="workout-section-count">{workout.exercises.length} movements</span>
         </section>
-        <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise} onNoEquipment={reportMissingEquipment} weight={state.profile.exerciseLoads?.[exercise.id] ?? ""} onWeightChange={value=>updateExerciseWeight(exercise.id,value)}/>)}</section>
+        <section className="exercise-list">{visible.map((exercise,index)=><ExerciseCard key={exercise.id} exercise={exercise} index={index} completed={completed.includes(exercise.id)} onToggle={()=>toggle(exercise.id)} onShuffle={shuffleExercise} onPlay={setDemoExercise} onNoEquipment={reportMissingEquipment} weight={state.profile.exerciseLoads?.[exercise.id] ?? ""} onWeightChange={value=>updateExerciseWeight(exercise.id,value)} unavailableEquipment={state.profile.unavailableEquipment || []} unavailableExerciseIds={state.profile.unavailableExerciseIds || []}/>)}</section>
         <div className="list-actions"><button className="secondary-button" onClick={()=>setShowAll(!showAll)}>{showAll?"Show less":"See full workout"} <ChevronRight size={17}/></button>{completed.length>0&&<button className="quiet-button" onClick={()=>setCompleted([])}><RotateCcw size={15}/> Reset</button>}
         <button className="primary-button compact finish-workout-button" onClick={finishForToday} disabled={!completed.length}>Finish my workout <Check size={16}/></button></div>
         <section className="next-card"><div className="next-icon"><Flame size={21}/></div><div><span className="section-label">THE ENGINE</span><h3>Your next workout changes based on what you actually do.</h3><p>Gymbro rotates movement patterns and avoids recently completed exercises when it builds your next session.</p></div><Settings2 className="next-arrow" size={20}/></section>
