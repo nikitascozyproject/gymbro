@@ -19,7 +19,7 @@ const featuredExerciseLibrary = [
   { id:"bird-dog",name:"Bird Dog",muscles:["core"],pattern:"core",equipment:["bodyweight"],sets:3,reps:"8–10 / side",rest:"45 sec",demo:{youtubeId:"40a4wZrnCFs"} },
   { id:"plank",name:"Forearm Plank",muscles:["core"],pattern:"core",equipment:["bodyweight"],sets:3,reps:"30–45 sec",rest:"45 sec",demo:{youtubeId:"-1f7iZobFyM"} },
 ];
-import { exerciseDirectory } from "./exerciseDirectory";
+import { exerciseDirectory } from "./exerciseDirectory.js";
 
 const defaultPrescription = {
   sets: 3,
