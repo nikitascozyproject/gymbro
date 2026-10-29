@@ -1110,3 +1110,57 @@ button:active:not(:disabled) { transform: translateY(1px); }
 }
 .equipment-feedback-button:hover { background: #f1f0eb; }
 .directory-demo-link { display: inline-flex; }
+
+
+/* Warm editorial palette: cream + ink, with restrained sage, blush and butter accents */
+:root {
+  --gymbro-cream: #f7f3e9;
+  --gymbro-paper: #fffaf0;
+  --gymbro-ink: #171714;
+  --gymbro-sage: #dce2c9;
+  --gymbro-blush: #f0d5df;
+  --gymbro-butter: #f2e3a0;
+}
+body { background: var(--gymbro-cream); color: var(--gymbro-ink); }
+.session-stage .session-guide { background: var(--gymbro-paper); border: 1px solid #e5dece; }
+.session-stage .warmup-guide { box-shadow: 0 8px 26px rgba(44, 39, 25, .035); }
+.session-guide .section-label { color: #777267; }
+.guide-badge { background: var(--gymbro-sage); color: var(--gymbro-ink); border: 0; }
+.guide-movements {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 10px;
+}
+.guide-movement {
+  min-width: 0;
+  align-items: flex-start;
+  background: #f4efe4;
+  border: 1px solid #ebe3d5;
+  padding: 13px;
+  gap: 10px;
+}
+.guide-movement:nth-child(3n + 1) { background: #e8ebdc; border-color: #dce1ce; }
+.guide-movement:nth-child(3n + 2) { background: #f4e3e8; border-color: #ecd3dc; }
+.guide-movement:nth-child(3n) { background: #f5ebc3; border-color: #ede0ae; }
+.guide-movement > span { background: rgba(255,255,255,.72); color: var(--gymbro-ink); }
+.guide-movement > div { min-width: 0; }
+.guide-movement strong { font-size: 12px; }
+.guide-movement small { font-size: 10px; }
+.guide-instruction { font-size: 11px; line-height: 1.45; }
+.warmup-quick-note { border-color: #e5dece; }
+.cooldown-guide { background: #f2eee3 !important; }
+.cooldown-guide .guide-movement { background: #fffaf0; }
+.primary-button, .stage-action { background: var(--gymbro-ink); }
+@media (max-width: 700px) {
+  .session-stage .session-guide { padding: 17px; }
+  .guide-movements { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .guide-movement { padding: 11px; gap: 8px; }
+  .guide-movement > span { width: 25px; height: 25px; flex-basis: 25px; }
+  .guide-movement strong { font-size: 11px; }
+  .guide-movement small { font-size: 10px; }
+  .guide-instruction { font-size: 10px; }
+}
+@media (max-width: 360px) {
+  .guide-movements { grid-template-columns: 1fr; }
+}
