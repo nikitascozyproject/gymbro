@@ -1224,3 +1224,12 @@ body { background: var(--gymbro-cream); color: var(--gymbro-ink); }
   .guide-movements { grid-template-columns:1fr; }
   .workout-section-heading { flex-direction:column; }
 }
+
+
+.equipment-feedback-button.is-noted {
+  color: #273322;
+  background: #e0e4d5;
+  border-color: #b7c0a5;
+}
+.equipment-feedback-button.is-noted svg { color: #58664a; }
+.equipment-feedback-button { transition: background-color .18s ease, color .18s ease, border-color .18s ease; }
