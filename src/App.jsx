@@ -372,30 +372,37 @@ export default function App() {
     equipmentModes:["equipment"],
   };
   const currentIds = workout.exercises.map(item => item.id);
+  const muscle = exercise.muscles?.[0] || state.todayCustomization?.muscles?.[0] || "back";
+  const shuffleHistory = state.shuffleHistory || {};
+  const recentAlternatives = shuffleHistory[muscle] || [];
+  const blockedIds = [...new Set([...currentIds, ...recentAlternatives, exercise.id])];
   const alternatives = generateWorkout({
     library:exerciseLibrary,
     equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],
     trainingDays:state.profile.trainingDays,
     history:state.history,
-    // Replace the movement within its own primary muscle group. A shuffle
-    // on a back exercise must never return a core, chest, or shoulder exercise
-    // merely because those muscles are also part of the wider session.
-    focusOverride: [exercise.muscles?.[0] || state.todayCustomization?.muscles?.[0] || "back"],
+    // Keep replacements in the same primary muscle group and avoid the last
+    // ten suggested alternatives for that group before allowing a repeat.
+    focusOverride: [muscle],
     exerciseCount:1,
     constraints,
-    excludeIds:currentIds,
+    excludeIds:blockedIds,
     shuffle:true,
     singleExerciseShuffle:true,
   });
   const replacement = alternatives.exercises[0];
-  if(!replacement || replacement.id === exercise.id || currentIds.includes(replacement.id)) return;
+  if(!replacement || replacement.id === exercise.id || blockedIds.includes(replacement.id)) {
+    window.alert("Gymbro couldn't find another unused exercise for this muscle with your current equipment. Try changing your equipment options.");
+    return;
+  }
   const nextPlan = {
     ...workout,
     id:`${workout.id}-exercise-shuffle-${Date.now()}`,
     exercises:workout.exercises.map(item => item === exercise ? replacement : item),
   };
+  const nextHistory = {...shuffleHistory,[muscle]:[...recentAlternatives, replacement.id].slice(-10)};
   setTodayPlan(nextPlan);
-  setState(c=>({...c,todayPlan:nextPlan}));
+  setState(c=>({...c,todayPlan:nextPlan,shuffleHistory:nextHistory}));
   setCompleted(c=>c.filter(id=>id!==exercise.id));
 };
 
