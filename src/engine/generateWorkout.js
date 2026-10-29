@@ -86,12 +86,13 @@ function scoreExercise(exercise, focus, recentIds, energy = "normal", intensity 
   return score;
 }
 
-function buildCandidates({ library, equipment, unavailableEquipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle, behavior }) {
+function buildCandidates({ library, equipment, unavailableEquipment, unavailableExerciseIds = [], equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle, behavior }) {
   return library
     // Treat the first listed muscle as the exercise's primary target.
     // Secondary involvement alone must not make an exercise eligible for a
     // selected-muscle workout (e.g. a chest press that also uses the core).
     .filter((exercise) => exercise.muscles?.length && focus.includes(exercise.muscles[0]))
+    .filter((exercise) => !unavailableExerciseIds.includes(exercise.id))
     .filter((exercise) => matchesEquipment(exercise, equipment, unavailableEquipment))
     .filter((exercise) => {
       if (equipmentModes.includes("equipment") && exercise.equipment.some((item) => item !== "bodyweight")) return true;
@@ -169,6 +170,7 @@ export function generateWorkout({
   library,
   equipment,
   unavailableEquipment = [],
+  unavailableExerciseIds = [],
   trainingDays = 4,
   history = [],
   focusOverride = null,
@@ -213,7 +215,7 @@ export function generateWorkout({
     );
 
   let candidates = buildCandidates({
-    library, equipment, unavailableEquipment, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle, behavior,
+    library, equipment, unavailableEquipment, unavailableExerciseIds, equipmentModes, focus, recentIds, energy, intensity, excludeIds, shuffle, behavior,
   });
 
   let selected;
@@ -245,6 +247,7 @@ export function generateWorkout({
       library,
       equipment,
       unavailableEquipment,
+      unavailableExerciseIds,
       equipmentModes,
       focus,
       recentIds,
