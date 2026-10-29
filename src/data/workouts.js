@@ -46,5 +46,6 @@ export const defaultProfile = {
   equipment:["dumbbells","barbell","bench","cable","machine","leg-extension","leg-curl","bodyweight"],
   trainingLevel:"beginner",
   unavailableEquipment:[],
+  unavailableExerciseIds:[],
   exerciseLoads:{},
 };
