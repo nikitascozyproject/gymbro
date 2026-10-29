@@ -240,7 +240,7 @@ export function generateWorkout({
   // If a very small muscle-specific pool cannot produce the requested number
   // of alternatives, keep the same focus and relax the "different exercise"
   // rule only for the final slots rather than returning an undersized workout.
-  if (selected.length < maxExercises && excludeIds.length) {
+  if (selected.length < maxExercises && excludeIds.length && !singleExerciseShuffle) {
     const fallbackCandidates = buildCandidates({
       library,
       equipment,
