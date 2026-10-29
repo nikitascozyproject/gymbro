@@ -111,9 +111,33 @@ function selectExercises(candidates, focus, maxExercises) {
   const selected = [];
   const usedPatterns = new Set();
   const targets = getMuscleTargets(focus, maxExercises);
+  const lowerFocus = focus.some(muscle => ["glutes", "quads", "hamstrings"].includes(muscle));
 
-  // Larger muscle groups receive more slots. This keeps a seven-exercise
-  // back+biceps session closer to 5+2 than an arbitrary 4+3 split.
+  // Build lower-body sessions around distinct movement families first, rather
+  // than letting several similar glute accessories crowd out basic leg lifts.
+  if (lowerFocus && maxExercises >= 3) {
+    const families = [
+      { name: "squat", matches: ex => ["squat", "leg-press", "knee-dominant", "isometric-squat"].includes(ex.pattern) },
+      { name: "unilateral-knee", matches: ex => ["lunge", "lunge-diagonal", "split-squat", "step-up", "step-down"].includes(ex.pattern) },
+      { name: "hinge", matches: ex => ["hinge", "hinge-unilateral", "hip-hinge"].includes(ex.pattern) },
+      { name: "hamstring-curl", matches: ex => ex.pattern === "knee-flexion" && ex.muscles.includes("hamstrings") },
+    ];
+    for (const family of families) {
+      if (selected.length >= maxExercises) break;
+      const candidate = candidates.find(({ exercise }) =>
+        family.matches(exercise) &&
+        exercise.muscles.some(muscle => focus.includes(muscle)) &&
+        !selected.some(item => item.id === exercise.id)
+      );
+      if (candidate) {
+        selected.push(candidate.exercise);
+        usedPatterns.add(candidate.exercise.pattern);
+      }
+    }
+  }
+
+  // Larger muscle groups receive more slots, but the preselected movement
+  // families ensure lower-body sessions aren't dominated by one exercise type.
   focus.forEach((muscle) => {
     const target = targets[muscle] || 1;
     const muscleCandidates = candidates.filter(({ exercise }) =>
