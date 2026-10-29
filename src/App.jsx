@@ -498,10 +498,31 @@ export default function App() {
     if(!missing){window.alert("Please enter one of the equipment options shown.");return;}
     const nextUnavailable=[...new Set([...(state.profile.unavailableEquipment||[]),missing])];
     const updatedProfile={...state.profile,unavailableEquipment:nextUnavailable};
-    const focus=state.todayCustomization?.muscles?.length?state.todayCustomization.muscles:workout.focus.map(x=>x.toLowerCase());
-    const nextPlan=generateWorkout({library:exerciseLibrary,equipment:updatedProfile.equipment,unavailableEquipment:nextUnavailable,trainingDays:updatedProfile.trainingDays,history:state.history,focusOverride:focus,exerciseCount:workout.exercises.length,constraints:state.todayCustomization||{},excludeIds:workout.exercises.filter(item=>item.id!==exercise.id).map(item=>item.id)});
-    setState(c=>({...c,profile:updatedProfile,todayPlan:nextPlan}));setTodayPlan(nextPlan);setCompleted(c=>c.filter(id=>id!==exercise.id));
-    window.alert(`Saved. Gymbro will avoid ${labels[missing]||missing} in future workouts.`);
+    // Save the equipment preference for future sessions, but only replace the
+    // exercise the user flagged. Never regenerate the rest of today's workout.
+    const alternatives=generateWorkout({
+      library:exerciseLibrary,
+      equipment:updatedProfile.equipment,
+      unavailableEquipment:nextUnavailable,
+      trainingDays:updatedProfile.trainingDays,
+      history:state.history,
+      focusOverride:[exercise.muscles?.[0] || workout.focus?.[0]?.toLowerCase() || "glutes"],
+      exerciseCount:1,
+      constraints:state.todayCustomization||{},
+      excludeIds:workout.exercises.map(item=>item.id),
+      shuffle:true,
+      singleExerciseShuffle:true,
+    });
+    const replacement=alternatives.exercises?.[0];
+    const nextPlan=replacement
+      ? {...workout,exercises:workout.exercises.map(item=>item.id===exercise.id?replacement:item)}
+      : workout;
+    setState(c=>({...c,profile:updatedProfile,todayPlan:nextPlan}));
+    setTodayPlan(nextPlan);
+    setCompleted(c=>replacement?c.filter(id=>id!==exercise.id):c);
+    window.alert(replacement
+      ? `Saved. This exercise has been replaced, and Gymbro will avoid ${labels[missing]||missing} in future workouts. The rest of today's workout is unchanged.`
+      : `Saved. Gymbro will avoid ${labels[missing]||missing} in future workouts, but couldn't find a suitable replacement for this exercise right now. The rest of today's workout is unchanged.`);
   };
   const updateExerciseWeight=(exerciseId,value)=>setState(c=>({...c,profile:{...c.profile,exerciseLoads:{...(c.profile.exerciseLoads||{}),[exerciseId]:value}}}));
   return <div className="app-shell">
