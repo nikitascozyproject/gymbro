@@ -392,21 +392,25 @@ export default function App() {
   const shuffleHistory = state.shuffleHistory || {};
   const recentAlternatives = shuffleHistory[muscle] || [];
   const blockedIds = [...new Set([...currentIds, ...recentAlternatives, exercise.id])];
-  const alternatives = generateWorkout({
+  const getAlternative = (excludeIds) => generateWorkout({
     library:exerciseLibrary,
     equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],
     trainingDays:state.profile.trainingDays,
     history:state.history,
-    // Keep replacements in the same primary muscle group and avoid the last
-    // ten suggested alternatives for that group before allowing a repeat.
+    // Keep replacements in the same primary muscle group.
     focusOverride: [muscle],
     exerciseCount:1,
     constraints,
-    excludeIds:blockedIds,
+    excludeIds,
     shuffle:true,
     singleExerciseShuffle:true,
-  });
-  const replacement = alternatives.exercises[0];
+  }).exercises[0];
+
+  // First avoid the current workout and recent shuffle history. If that pool
+  // is exhausted, allow an older alternative to return, but never offer an
+  // exercise that is already elsewhere in the current workout.
+  let replacement = getAlternative(blockedIds);
+  if (!replacement) replacement = getAlternative(currentIds);
   if(!replacement || replacement.id === exercise.id || blockedIds.includes(replacement.id)) {
     window.alert("Gymbro couldn't find another unused exercise for this muscle with your current equipment. Try changing your equipment options.");
     return;
