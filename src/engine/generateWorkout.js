@@ -2,7 +2,10 @@ const split = ["lower", "upper", "lower", "upper"];
 
 const focusByDay = {
   lower: ["glutes", "hamstrings", "quads", "core"],
-  upper: ["back", "shoulders", "chest", "biceps", "triceps", "core"],
+  // Back is the primary upper-body priority. Biceps and triceps are trained
+  // through compound pulls and presses rather than competing with back for
+  // dedicated slots in a short default session.
+  upper: ["back", "chest", "shoulders", "core"],
 };
 
 const dayNames = { lower: "Lower Body + Core", upper: "Upper Body + Core" };
