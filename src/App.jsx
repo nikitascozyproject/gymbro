@@ -375,8 +375,14 @@ export default function App() {
     }));
   }, [state, todayPlan, completed, activeDate]);
   const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
-  const workout=todayPlan || defaultWorkout;
-  const progress=Math.round((completed.length/workout.exercises.length)*100);
+  // A previously saved empty plan is invalid. Fall back to a fresh generated
+  // session instead of rendering a zero-movement workout.
+  const workout=Array.isArray(todayPlan?.exercises) && todayPlan.exercises.length > 0
+    ? todayPlan
+    : defaultWorkout;
+  const progress=workout.exercises.length
+    ? Math.min(100, Math.round((completed.length/workout.exercises.length)*100))
+    : 0;
   const status=progress===100?"Workout complete":progress>0?"You're in":"Ready when you are";
   const visible=showAll?workout.exercises:workout.exercises.slice(0,3);
   const toggle=id=>setCompleted(c=>c.includes(id)?c.filter(x=>x!==id):[...c,id]);
