@@ -68,3 +68,30 @@ test("empty or unsupported focus fails safely with an empty exercise list", () =
   const result = generateWorkout({ ...base, focusOverride: ["not-a-real-muscle"] });
   assert.deepEqual(result.exercises, []);
 });
+
+test("custom multi-muscle sessions never silently omit a requested muscle", () => {
+  const shoulderOnlyLibrary = exerciseLibrary.filter((exercise) =>
+    exercise.muscles[0] === "shoulders"
+  );
+  const result = generateWorkout({
+    ...base,
+    library: shoulderOnlyLibrary,
+    focusOverride: ["shoulders", "biceps"],
+    exerciseCount: 4,
+    constraints: { ...base.constraints, timeAvailable: "45" },
+  });
+  assert.deepEqual(result.exercises, []);
+  assert.deepEqual(result.unavailableFocus, ["biceps"]);
+});
+
+test("a supported shoulders-and-biceps session includes both muscle groups", () => {
+  const result = generateWorkout({
+    ...base,
+    focusOverride: ["shoulders", "biceps"],
+    exerciseCount: 4,
+    constraints: { ...base.constraints, timeAvailable: "45" },
+  });
+  assert.ok(result.exercises.length >= 2);
+  assert.ok(result.focus.includes("Shoulders"));
+  assert.ok(result.focus.includes("Biceps"));
+});
