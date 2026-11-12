@@ -267,7 +267,16 @@ export function generateWorkout({
     );
   }
 
+  // A custom multi-muscle session is not valid if the generator cannot
+  // include at least one movement that trains every requested muscle.
+  // Returning a partial plan makes the UI claim to cover muscles it omitted.
+  const missingFocus = focus.filter(
+    (muscle) => !selected.some((exercise) => exercise.muscles.includes(muscle))
+  );
+  if (missingFocus.length) selected = [];
+
   return {
+    unavailableFocus: missingFocus,
     recommendedExerciseCount: focusOverride?.length
       ? Math.min(7, Math.max(2, focusOverride.length * 2))
       : maxExercises,
