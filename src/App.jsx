@@ -377,9 +377,15 @@ export default function App() {
   const defaultWorkout=useMemo(()=>generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],trainingDays:state.profile.trainingDays,history:state.history,sessionLength:state.profile.sessionLength}),[state.profile,state.history]);
   // A previously saved empty plan is invalid. Fall back to a fresh generated
   // session instead of rendering a zero-movement workout.
-  const workout=Array.isArray(todayPlan?.exercises) && todayPlan.exercises.length > 0
-    ? todayPlan
-    : defaultWorkout;
+  const savedCustomFocus = state.todayCustomization?.muscles || [];
+  const savedPlanCoversFocus = savedCustomFocus.every((muscle) =>
+    todayPlan?.exercises?.some((exercise) => exercise.muscles?.includes(muscle))
+  );
+  const workout=Array.isArray(todayPlan?.exercises) &&
+    todayPlan.exercises.length > 0 &&
+    (!savedCustomFocus.length || savedPlanCoversFocus)
+      ? todayPlan
+      : defaultWorkout;
   const progress=workout.exercises.length
     ? Math.min(100, Math.round((completed.length/workout.exercises.length)*100))
     : 0;
@@ -462,7 +468,11 @@ export default function App() {
   }
 };
   const applyCustomization=(muscles,count,constraints)=>{
-  const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});
+  const custom=generateWorkout({library:exerciseLibrary,equipment:state.profile.equipment,unavailableEquipment:state.profile.unavailableEquipment || [],unavailableExerciseIds:state.profile.unavailableExerciseIds || [],trainingDays:state.profile.trainingDays,history:state.history,focusOverride:muscles,exerciseCount:count,constraints});
+  if (!custom.exercises.length || custom.unavailableFocus?.length) {
+    window.alert(`Gymbro couldn't build a session covering every selected muscle with your current equipment. Review your equipment options and try again.`);
+    return;
+  }
   setTodayPlan(custom);
   setState(c=>({...c,todayPlan:custom,todayCustomization:{muscles,timeAvailable:constraints.timeAvailable,energy:constraints.energy,intensity:constraints.intensity,equipmentModes:constraints.equipmentModes}}));
   setCompleted([]);
